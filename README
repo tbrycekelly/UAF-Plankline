@@ -1,0 +1,68 @@
+#########################################################
+#  README
+#
+#  Copyright © 2021 Oregon State University
+#
+#  Moritz S. Schmid
+#  Dominic W. Daprano
+#  Kyler M. Jacobson
+#  Christopher M. Sullivan
+#  Christian Briseño-Avena
+#  Jessica Y. Luo
+#  Robert K. Cowen
+#
+#  Hatfield Marine Science Center
+#  Center for Genome Research and Biocomputing
+#  Oregon State University
+#  Corvallis, OR 97331
+#
+#  This program is distributed WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# 
+#  This program is distributed under the 
+#  GNU GPL v 2.0 or later license.
+#
+#  Any User wishing to make commercial use of the Software must contact the authors 
+#  or Oregon State University directly to arrange an appropriate license.
+#  Commercial use includes (1) use of the software for commercial purposes, including 
+#  integrating or incorporating all or part of the source code into a product 
+#  for sale or license by, or on behalf of, User to third parties, or (2) distribution 
+#  of the binary or source code to third parties for use with a commercial 
+#  product sold or licensed by, or on behalf of, User.
+# 
+#  CITE AS:
+# 
+#  Schmid MS, Daprano D, Jacobson KM, Sullivan CM, Briseño-Avena C, Luo JY, Cowen RK. 2021.
+#  A Convolutional Neural Network based high-throughput image 
+#  classification pipeline - code and documentation to process
+#  plankton underwater imagery using local HPC infrastructure 
+#  and NSF’s XSEDE. [Software]. Zenodo. 
+#  http://dx.doi.org/10.5281/zenodo.4641158
+#
+#########################################################
+
+This is a quick start guide, please reference the documentation for more in 
+depth information. 
+
+To setup the pipeline we must make use of autoconf.
+
+$ autoreconf -i
+
+This will create a config file that can then be run to check for missing 
+libraries and executables.
+
+$ ./configure
+
+After this is run then a Makefile will be generated. This make file helps to 
+create the config file then will start the pipeline script plankline.py, set
+the DRIVE_DIR path in order to start the pipeline in that directory.
+
+$ make DRIVE_DIR=/<path>/<to>/<drive>
+
+The plankline.py script will prompt you for any missing configurations and will 
+save them to the config file. Example config files can be found in the "docs/"
+directory, including the template file that autoconf uses.
+
+Once a config file has been created the pipeline script can be run directly.
+
+$ python3 plankline.py -c <config>.ini -d /<path>/<to>/<drive> 

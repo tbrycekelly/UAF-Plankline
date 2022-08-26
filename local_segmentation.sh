@@ -92,3 +92,5 @@ PATH="$(dirname $ffmpeg):$(dirname $ffprobe):$(dirname $isiis_seg_ff):$pipeline_
 
 $python3 $pipeline_repo/segmentation.py -p $processes -c 1 -S $snr -s $drive_base
 
+/usr/bin/chmod 777 -R $drive_base
+

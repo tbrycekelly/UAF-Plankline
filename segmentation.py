@@ -87,7 +87,7 @@ def seg_ff(avi, seg_output, SNR):
     #
     # seg = "isiis_seg_ff -i {tif_dir} -o {out} -snrTh {signal_noise_ratio}"
     
-    seg = 'segment -i {avi_file} -o {out} -s {signal_noise_ratio} '
+    seg = 'segment -i {avi_file} -n 1 -o {out} -s {signal_noise_ratio} '
     
     print ('seg.format -->' + seg.format(avi_file=avi, out=seg_output, signal_noise_ratio=str(SNR)) + '<--')
 
@@ -102,6 +102,7 @@ def make_tifs(avi, tif_structure):
     print ('Start: make_tifs')
     print ('avi -->' + avi + '<--')
     print ('tif_structure -->' + tif_structure + '<--')
+    sys.stdout.flush()
 
     # get video framerate
     FFREPORT = "ffreport.log"
@@ -115,13 +116,15 @@ def make_tifs(avi, tif_structure):
     numer, denom = frame_rate[:-1].decode("utf-8").split('/') # remove new line, decode bystring and split on forward slash
     frame_rate = int(int(numer) / int(denom)) # change from fraction to int
 
-    print ('frame_rate -->' + str(frame_rate) + '<--')
+    print ('frame_rate -->' + str(frame_rate) + '<--', flush=True)
+    sys.stdout.flush()
 
-    ffmpeg = "ffmpeg -i {video} -r {fps} {output}" 
-    print (ffmpeg.format(video=avi, fps=frame_rate, output=tif_structure))
-    os.system(ffmpeg.format(video=avi, fps=frame_rate, output=tif_structure))
+    ffmpeg = "ffmpeg -i {video} {output}" 
+    print (ffmpeg.format(video=avi, output=tif_structure))
+    os.system(ffmpeg.format(video=avi, output=tif_structure))
 
     print ('End: make_tifs')
+    sys.stdout.flush()
 
     return True
 
@@ -192,8 +195,8 @@ def local_main(avi):
 
     # Create necessary directory structure.
     #
-    os.makedirs(avi_segment_scratch, 0o755, exist_ok=True)
-    os.makedirs(seg_output, 0o755, exist_ok=True)
+    os.makedirs(avi_segment_scratch, 0o777, exist_ok=True)
+    os.makedirs(seg_output, 0o777, exist_ok=True)
     
     # Segmentation.
     #   Run the segmentation on the AVI file.
@@ -296,9 +299,9 @@ if __name__ == "__main__":
     measure_scratch = scratch_base + "/measurements"
     short_segment_scratch = scratch_base + "/s"
     segment_scratch = scratch_base + "/segmentation"
-    os.makedirs(raw_scratch, 0o755,exist_ok=True)
-    os.makedirs(measure_scratch, 0o755,exist_ok=True)
-    os.makedirs(short_segment_scratch, 0o755,exist_ok=True)
+    os.makedirs(raw_scratch, 0o777,exist_ok=True)
+    os.makedirs(measure_scratch, 0o777,exist_ok=True)
+    os.makedirs(short_segment_scratch, 0o777,exist_ok=True)
 
     # Get the list of avi files if transfering lazily.
     #

@@ -84,7 +84,7 @@ def classify(tar_file):
     today = datetime.now()
     date = today.strftime("%Y-%m-%d")
 
-    image_dir = tar_file.replace(".tar.gz", "") # remove extension
+    image_dir = tar_file.replace(".tar", "") # remove extension
     tar_identifier = os.path.basename(image_dir)
 
     log_file = "{classification_dir}/{tar_identifier}-{date}.log".format(classification_dir=classification_dir, tar_identifier=tar_identifier, date=date)
@@ -165,7 +165,7 @@ if __name__ == "__main__":
     if not os.path.exists(segmentation_dir):
         sys.exit("No directory segmentation")
 
-    tars = [os.path.join(segmentation_dir, tar) for tar in os.listdir(segmentation_dir) if tar.endswith(".tar.gz")]
+    tars = [os.path.join(segmentation_dir, tar) for tar in os.listdir(segmentation_dir) if tar.endswith(".tar")]
     if len(tars) == 0:
         sys.exit("Error: No tars file in segmenation directory")
 

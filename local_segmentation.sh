@@ -89,7 +89,7 @@ pipeline_repo=$(awk '/^pipeline_repo =/ {print $3}' $config)
 
 # NOTE: Make sure to include all of the libraries necessary for ffmpeg, ffprobe and seg_ff to run.
 PATH="$(dirname $ffmpeg):$(dirname $ffprobe):$(dirname $isiis_seg_ff):$pipeline_repo:$PATH"
-
+echo $pipeline_repo/segmentation.py -p $processes -c 1 -S $snr -s $drive_base
 $python3 $pipeline_repo/segmentation.py -p $processes -c 1 -S $snr -s $drive_base
 
 /usr/bin/chmod 777 -R $drive_base

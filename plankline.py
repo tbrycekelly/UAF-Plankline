@@ -530,9 +530,10 @@ def cgrb_segmentation(DRIVE_BASE, DRIVE_NAME, SEGMENT_HOST, SEGMENT_PROCESSES, C
 # fast SSD storage (if possible)
 ###########################
 def local_segmentation(DRIVE_BASE, DRIVE_NAME, CONFIG_FILE):
+    print('Entering local_segmentation.sh') # TBK
     # seg_environement needs to be called since the environment variables are not preserved when submitting a job with SGE_Batch
     log_file = "{drive_base}/segmentation_{drive_name}.log".format(drive_base=DRIVE_BASE, drive_name=DRIVE_NAME)
-    segment = "nohup bash {pipeline_repo}/local_segmentation.sh -b {drive_base} -c {config} > {log_file} 2>&1 &"
+    segment = "bash {pipeline_repo}/local_segmentation.sh -b {drive_base} -c {config} > {log_file} 2>&1 &"
     os.system(segment.format(drive_base=DRIVE_BASE, pipeline_repo=PIPELINE_REPO, config=CONFIG_FILE, log_file=log_file))
 
 ##########################
@@ -567,8 +568,9 @@ def cgrb_classification(DRIVE_BASE, DRIVE_NAME, CONFIG_FILE):
 # segmentation is already in fast SSD storage (if possible)
 ###########################
 def local_classification(DRIVE_BASE, DRIVE_NAME, CONFIG_FILE):
+    print('Entering local_classification.sh')
     log_file = "{drive_base}/classification_{drive_name}.log".format(drive_base=DRIVE_BASE, drive_name=DRIVE_NAME)
-    cmd = "nohup bash {pipeline_repo}/local_classification.sh -b {drive_base} -c {config} > {log_file} 2>&1 &"
+    cmd = "bash {pipeline_repo}/local_classification.sh -b {drive_base} -c {config} > {log_file} 2>&1 &"
     os.system(cmd.format(drive_base=DRIVE_BASE, pipeline_repo=PIPELINE_REPO, config=CONFIG_FILE, log_file=log_file))
 
 #--------------------------------------------------------------------------------------------

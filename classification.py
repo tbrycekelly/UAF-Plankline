@@ -76,6 +76,8 @@ def directory(arg):
 # Global Variables: scnn_directory, classification_dir, epoch, queue
 #
 def classify(tar_file):
+    sys.stdout.write('Starting classification...')
+    sys.stdout.flush()
     print ('Start: classify')
     stdout = sys.stdout
 
@@ -96,13 +98,13 @@ def classify(tar_file):
         print("Starting on GPU {gpu_id}".format(gpu_id=gpu_id))
 
         print ('image_dir: ', image_dir)
-        image_dir = tar_file.replace(".tar.gz", "") # remove extension
+        image_dir = tar_file.replace(".tar", "") # remove extension
 
         print ('tar_identifier: ', tar_identifier)
         tar_identifier = os.path.basename(image_dir)
         
-        os.makedirs(image_dir, 0o755,exist_ok=True)
-        untar_cmd = 'tar --no-overwrite-dir -xzf {tar_file} -C {image_dir} --strip-components=5 --wildcards "*.png"'
+        os.makedirs(image_dir, 0o777, exist_ok=True)
+        untar_cmd = 'tar --no-overwrite-dir -xf {tar_file} -C {image_dir} --strip-components=4 --wildcards "*.png"' # TBK change strip-components to what you need.
 
         print ('untar_cmd: ', untar_cmd.format(tar_file=tar_file, image_dir=image_dir))
         os.system(untar_cmd.format(tar_file=tar_file, image_dir=image_dir))
@@ -110,7 +112,7 @@ def classify(tar_file):
         # Perform classification.
         #
         # untar_cmd = 'tar --no-overwrite-dir -xzf {tar_file} -C {image_dir} --strip-components=3 --wildcards "*.png"'
-        scnn_cmd  = "cd {scnn_dir}; isiis_scnn -start {epoch} -stop {epoch} -unl {image_dir} -cD {gpu_target} >> {log_file}"
+        scnn_cmd  = "cd {scnn_dir}; ./isiis_scnn -start {epoch} -stop {epoch} -unl {image_dir} -cD {gpu_target} >> {log_file}"
         
         # print ('untar_cmd: ', untar_cmd)
         print ('scnn_cmd: ', scnn_cmd.format(scnn_dir=scnn_directory, epoch=epoch, image_dir=image_dir, gpu_target=gpu_id, log_file=log_file))
@@ -157,7 +159,7 @@ if __name__ == "__main__":
     # segmentation_dir is where the input data is taken from
     segmentation_dir = scratch_base + "/segmentation"  
     classification_dir = scratch_base + "/classification"
-    os.makedirs(classification_dir, 0o755,exist_ok=True)
+    os.makedirs(classification_dir, 0o777,exist_ok=True)
 
     # make sure this is a valid directory
     if not os.path.exists(segmentation_dir):

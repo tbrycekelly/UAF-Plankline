@@ -55,6 +55,7 @@ import os
 import sys
 import shutil
 import argparse
+import datetime
 
 import subprocess
 from multiprocessing import Pool
@@ -78,22 +79,16 @@ def directory(arg):
 # seg_ff
 #
 def seg_ff(avi, seg_output, SNR):
-    print ('Start: seg_ff')
-    print ('avi -->' + avi + '<--')
-    print ('seg_output -->' + seg_output + '<--')
-    print ('SNR -->' + str(SNR) + '<--')
-
-    # jhsimonson - link in new segmentation binary.
-    #
-    # seg = "isiis_seg_ff -i {tif_dir} -o {out} -snrTh {signal_noise_ratio}"
+    print (datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"), ': Start seg_ff')
+    print ('\tavi -->' + avi + '<--')
+    print ('\tseg_output -->' + seg_output + '<--')
+    print ('\tSNR -->' + str(SNR) + '<--')
     
     seg = 'segment -i {avi_file} -n 1 -o {out} -s {signal_noise_ratio} '
-    
-    print ('seg.format -->' + seg.format(avi_file=avi, out=seg_output, signal_noise_ratio=str(SNR)) + '<--')
+    print ('\tseg.format -->' + seg.format(avi_file=avi, out=seg_output, signal_noise_ratio=str(SNR)) + '<--')
 
     os.system (seg.format(avi_file=avi, out=seg_output, signal_noise_ratio=str(SNR)))
-
-    print ('End: seg_ff')
+    print (datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"), ': End seg_ff')
 
 #--------------------------------------------------------------------------
 # make_tifs
@@ -148,7 +143,7 @@ def command_redo(cmd, err_message):
 # Necessary global variables: short_segment_scratch, SNR, fp_measure.
 #
 def local_main(avi):
-    print ('Start: local_main')
+    print (datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"), ': Start local_main')
       
     # Global Data:
     # short_segment_scratch: this is the place on the root of the machine where the seg_ff happens
@@ -172,10 +167,10 @@ def local_main(avi):
     print ('scratch_base: ', scratch_base)
 
     # Deals with the segmentation fault that results from having a output dir that is too long.
-    max_segment_output = 37
-    if (len(short_segment_scratch) > max_segment_output):
-        print("Exiting: Program will segmentation fault if the scratch path is too long.")  
-        exit()
+    #max_segment_output = 37
+    #if (len(short_segment_scratch) > max_segment_output):
+    #    print("Exiting: Program will segmentation fault if the scratch path is too long.")  
+    #    exit()
 
     # NOTE: since the raw avi files are so large we have opted to transfer them as they are needed
     if (lazy_transfer):
@@ -206,12 +201,12 @@ def local_main(avi):
     # Zip the segmentation output.
     # Create a new archive and use gzip to compress it.
     #
-    print ('Start: Tar')
-    tar_name = avi_segment_scratch + ".tar.gz"
-    tar = "tar cfz {tar} -C {dir_input} ." 
-    print ('tar.format: ', tar.format(tar=tar_name, dir_input=seg_output))
+    print (datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"), ': Start Tar')
+    tar_name = avi_segment_scratch + ".tar"
+    tar = "tar cf {tar} -C {dir_input} ." 
+    print ('\ttar.format: ', tar.format(tar=tar_name, dir_input=seg_output))
     os.system(tar.format(tar=tar_name, dir_input=seg_output))
-    print ('End: Tar')
+    print (datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"), ': End Tar')
 
     shutil.rmtree(seg_output)          # remove datecode_s/
     shutil.rmtree(avi_segment_scratch) # remove datecode/
@@ -219,7 +214,7 @@ def local_main(avi):
     if (lazy_transfer):
         os.remove(avi) # remove avi from the segment scratch
 
-    print ('End: local_main')
+    print (datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"), ': End local_main')
 
 #------------------------------------------------------------------------------
 # Fix Avi Names
@@ -239,7 +234,7 @@ def FixAviNames (avis):
 # main
 #
 if __name__ == "__main__":
-    print ('Start: main')
+    print (datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"), ': Start main')
 
     # create a parser for command line arguments
     parser = argparse.ArgumentParser(description="Segmentation tool for the plankton pipeline. Uses ffmpeg and seg_ff to segment a video into crops of plankton")
@@ -345,6 +340,6 @@ if __name__ == "__main__":
         os.rename(short_segment_scratch, segment_scratch)
     except: 
         os.system("mv {src}/* {dst}; rm -rf {src}".format(src=short_segment_scratch, dst=segment_scratch))
-    print ('End: main')
+    print (datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"), ': End main')
     print("Finished Segmenting")
     

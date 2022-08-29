@@ -65,12 +65,12 @@ pipeline_repo=$(awk '/^pipeline_repo =/ {print $3}' $config)
 scnn_scratch=$drive_base/$(basename $scnn_dir)
 
 #--------------------------------------------------------
-# echo $python3
-# echo $instances
-# echo $scnn_dir
-# echo $epoch
-# echo $pipeline_repo
-# echo $scnn_scratch
+ echo $python3
+ echo $instances
+ echo $scnn_dir
+ echo $epoch
+ echo $pipeline_repo
+ echo $scnn_scratch
 #--------------------------------------------------------
 
 # Copy isiis_scnn weights and data folder to local scratch.
@@ -81,7 +81,7 @@ rsync -a $scnn_dir/ $scnn_scratch
 PATH=$scnn_dir:$PATH
 
 # Perform classification.
-#
+echo $pipeline_repo/classification.py -s $drive_base -i $instances -d $scnn_dir -e $epoch
 $python3 $pipeline_repo/classification.py -s $drive_base -i $instances -d $scnn_dir -e $epoch
 
 rm -rf $scnn_scratch

@@ -1,51 +1,3 @@
-#########################################################
-#  classification.py
-#
-#  Copyright © 2021 Oregon State University
-#
-#  Moritz S. Schmid
-#  Dominic W. Daprano
-#  Kyler M. Jacobson
-#  Christopher M. Sullivan
-#  Christian Briseño-Avena
-#  Jessica Y. Luo
-#  Robert K. Cowen
-#
-#  Hatfield Marine Science Center
-#  Center for Genome Research and Biocomputing
-#  Oregon State University
-#  Corvallis, OR 97331
-#
-#  This program is distributed WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-#
-#  This program is distributed under the
-#  GNU GPL v 2.0 or later license.
-#
-#  Any User wishing to make commercial use of the Software must contact the authors
-#  or Oregon State University directly to arrange an appropriate license.
-#  Commercial use includes (1) use of the software for commercial purposes, including
-#  integrating or incorporating all or part of the source code into a product
-#  for sale or license by, or on behalf of, User to third parties, or (2) distribution
-#  of the binary or source code to third parties for use with a commercial
-#  product sold or licensed by, or on behalf of, User.
-#
-#  CITE AS:
-#
-#  Schmid MS, Daprano D, Jacobson KM, Sullivan CM, Briseño-Avena C, Luo JY, Cowen RK. 2021.
-#  A Convolutional Neural Network based high-throughput image
-#  classification pipeline - code and documentation to process
-#  plankton underwater imagery using local HPC infrastructure
-#  and NSF’s XSEDE. [Software]. Zenodo.
-#  http://dx.doi.org/10.5281/zenodo.4641158
-#
-#########################################################
-
-# BRIEF SCRIPT DESCRIPTION
-# This script will facilitate the starting of isiis_scnn on multiple GPUs
-# based on the given arguments. Input data is expected to be in the form
-# that the segmentation.py script will output.
-
 import os
 import sys
 import shutil
@@ -57,20 +9,8 @@ import logging.config # TBK
 import tqdm # TBK
 import subprocess
 import datetime
+from time import time
 from multiprocessing import Pool, Queue
-
-#----------------------------------------------------------------------------------------
-# directory
-#
-# custom arg type for argparse
-#
-def directory(arg):
-    if os.path.isdir(arg):
-        if arg.endswith("/"):
-            arg = arg[:-1]
-        return arg
-    else:
-        raise argparse.ArgumentTypeError("Not a valid directory path")
 
 
 #----------------------------------------------------------------------------------------
@@ -79,48 +19,77 @@ def directory(arg):
 # Global Variables: scnn_directory, classification_dir, epoch, queue
 #
 def classify(tar_file):
+    timer_classify = time()
     logger.info("Starting classify")
     date = datetime.datetime.now().strftime("%Y-%m-%d")
 
-    image_dir = tar_file.replace(".tar.gz", "") # remove extension
-    tar_identifier = os.path.basename(image_dir)
-    os.makedirs(image_dir, permis, exist_ok = True)
-    log_file = "{classification_dir}/{tar_identifier}-{date}.log".format(classification_dir = classification_dir, tar_identifier = tar_identifier, date = date)
+    if config['general']['compress_output'] == 'True':
+        image_dir = tar_file.replace(".tar.gz", "") # remove extension
+        tar_identifier = os.path.basename(image_dir)
+        tmp_dir = config['segmentation']['fast_scratch'] + '/' + tar_identifier
+        os.makedirs(tmp_dir, permis, exist_ok = True)
+        log_file = f"{classification_dir}/{tar_identifier}-{date}.log"
+    else:
+        image_dir = tar_file.replace(".tar", "") # remove extension
+        tar_identifier = os.path.basename(image_dir)
+        tmp_dir = config['segmentation']['fast_scratch'] + '/' + tar_identifier
+        os.makedirs(tmp_dir, permis, exist_ok = True)
+        log_file = f"{classification_dir}/{tar_identifier}-{date}.log"
+
+    image_dir = tmp_dir
 
     gpu_id = queue.get()
 
-    logger.info("Starting on GPU {gpu_id}".format(gpu_id=gpu_id))
+    logger.info(f"Starting on GPU {gpu_id}")
     logger.info(f'image_dir: {image_dir}')
     logger.info(f'tar_identifier: {tar_identifier}')
 
     # Untar files
-    untar_cmd = 'tar -xzf {tar_file} -C {image_dir} --strip-components=4 --wildcards "*.png"  >> {log_file} 2>&1' # TBK change strip-components to what you need.
-    logger.debug('Untarring files: ' + untar_cmd.format(tar_file = tar_file, image_dir = image_dir))
-    os.system(untar_cmd.format(tar_file = tar_file, image_dir = image_dir))
+    if config['general']['compress_output'] == 'True':
+        untar_cmd = f'tar -xzf {tar_file} -C {image_dir} --strip-components=4 --wildcards "*.png"  >> {log_file} 2>&1' # TBK change strip-components to what you need.
+        logger.debug('Untarring+unzipping files: ' + untar_cmd)
+    else:
+        untar_cmd = f'tar -xf {tar_file} -C {image_dir} --strip-components=4 --wildcards "*.png"  >> {log_file} 2>&1' # TBK change strip-components to what you need.
+        logger.debug('Untarring files: ' + untar_cmd)
+    
+    timer_untar = time()
+    os.system(untar_cmd)
+    timer__untar = time() - timer_untar
+    logger.debug(f"Untarring files took {timer_untar:.3f} s.")
 
     # Perform classification.
-    scnn_cmd  = "cd {scnn_dir}; nohup ./isiis_scnn -start {epoch} -stop {epoch} -unl {image_dir} -cD {gpu_target} >> {log_file} 2>&1"
-    logger.debug('Running SCNN: ' + scnn_cmd.format(scnn_dir = scnn_directory, epoch = epoch, image_dir = image_dir, gpu_target = gpu_id, log_file = log_file))
+    scnn_cmd  = f"cd {scnn_directory}; nohup ./isiis_scnn -start {epoch} -stop {epoch} -unl {image_dir} -cD {gpu_id} >> {log_file} 2>&1"
+    logger.debug('Running SCNN: ' + scnn_cmd)
     logger.info('Start SCNN.')
 
-    os.system(scnn_cmd.format(scnn_dir = scnn_directory, epoch = epoch, image_dir = image_dir, gpu_target = gpu_id, log_file = log_file))
+    timer_scnn = time()
+    os.system(scnn_cmd)
+    timer_scnn = time() - timer_scnn
     logger.info('End SCNN.')
+    logger.debug(f"SCNN took {timer_scnn:.3f} s.")
 
     # Move the csv file resulting from classification.
-    csv_path = glob.glob("{scnn_dir}/Data/plankton/*{tar_identifier}*".format(scnn_dir=scnn_directory, tar_identifier=tar_identifier))
+    logger.info(f"Looking for files in {scnn_directory}/Data/plankton/ that match the id: {tar_identifier}")
+    csv_path = glob.glob(f"{scnn_directory}/Data/plankton/*{tar_identifier[10:]}*")
     if len(csv_path) > 0:
         csv_path = csv_path[0]
-        csv_file = "{classification_dir}/{tar_identifier}-{date}.csv".format(classification_dir=classification_dir, tar_identifier=tar_identifier, date=date)
+        csv_file = f"{classification_dir}/{tar_identifier}-{date}.csv"
+
+        timer_move = time()
         shutil.move(csv_path, csv_file)
+        timer_move = time() - timer_move
+        logger.debug(f"Moving csv(s) took {timer_move:.3f} s.")
+        
     else:
         logger.error(f'No classification file found for {tar_identifier}')
-        
+
     # Clean directories to make space.
     shutil.rmtree(image_dir)
 
     queue.put(gpu_id) # add the gpu id to the queue so that it can be allocated again
     logger.debug('End classify.')
-
+    timer_classify = time() - timer_classify
+    logger.debug(f"Total classification process took {timer_classify:.3f} s.")
 
 #----------------------------------------------------------------------------------------
 # __main__
@@ -133,7 +102,6 @@ if __name__ == "__main__":
 
     # read in the arguments
     args = parser.parse_args()
-
     config = configparser.ConfigParser() # TBK
     config.read(args.config) # TBK
 
@@ -144,8 +112,16 @@ if __name__ == "__main__":
     scnn_instances = int(config['classification']['scnn_instances'])
     scnn_directory = config['classification']['scnn_dir']
     epoch = int(config['classification']['epoch'])
-    chunksize = int(config['classification']['chunksize'])
     scratch_base = os.path.abspath(config['general']['working_dir'])
+
+
+    # Print config options to screen (TBK)
+    print("Starting Plankline Classification Script")
+    print(f"Configureation file: {args.config}")
+    print(f"Segmentation on: {scratch_base}")
+    print(f"Number of instances: {scnn_instances}")
+    print(f"Epoch: {epoch}")
+    print(f"Log configuration file: {config['logging']['config']}")
 
     # segmentation_dir is where the input data is taken from
     segmentation_dir = scratch_base + "/segmentation"
@@ -156,7 +132,11 @@ if __name__ == "__main__":
     if not os.path.exists(segmentation_dir):
         sys.exit("No directory segmentation")
 
-    tars = [os.path.join(segmentation_dir, tar) for tar in os.listdir(segmentation_dir) if tar.endswith(".tar.gz")]
+    if config['general']['compress_output'] == 'True':
+        tars = [os.path.join(segmentation_dir, tar) for tar in os.listdir(segmentation_dir) if tar.endswith(".tar.gz")]
+    else :
+        tars = [os.path.join(segmentation_dir, tar) for tar in os.listdir(segmentation_dir) if tar.endswith(".tar")]
+
     if len(tars) == 0:
         sys.exit("Error: No tars file in segmenation directory")
 
@@ -178,19 +158,13 @@ if __name__ == "__main__":
     # this is the parallel portion of the code
     p = Pool(num_processes)
 
-    # most efficient multiprocessing method, order doesn't matter so why not
-    # larger chunksize is supposed to be more efficient
-    #
     # Start the Classification processes.
-    #
-    #p.imap_unordered(classify, tars, chunksize = chunksize)
-    # TBK:
-    for _ in tqdm.tqdm(p.imap_unordered(classify, tars, chunksize=chunksize), total=len(tars)):
+    timer_pool = time()
+    for _ in tqdm.tqdm(p.imap_unordered(classify, tars, chunksize = 1), total = len(tars)):
         pass
-    #r = list(tqdm.tqdm(p.imap(classify, tars, chunksize = chunksize), total = len(tars)))
 
     p.close()
     p.join() # blocks so that we can wait for the processes to finish
-
-    logger.debug("Finished classification.")
-    print("Finished Classification.")
+    timer_pool = time() - timer_pool
+    logger.debug(f"Finished classification in {timer_pool:.3f} seconds.")
+    print(f"Finished Classification in {timer_pool:.1f} seconds.")

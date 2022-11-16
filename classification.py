@@ -170,5 +170,5 @@ if __name__ == "__main__":
     print(f"Finished Classification in {timer_pool:.1f} seconds.")
 
     logger.debug(f"Copying ini file to classification directory {classification_dir}")
-    shutil.copy2(args.config, classification_dir + '/' + datetime.datetime.now() + args.config)
+    shutil.copy2(args.config, classification_dir + '/' + str(datetime.datetime.now()) + args.config)
     logger.debug("Done.")

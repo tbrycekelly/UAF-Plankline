@@ -3,7 +3,7 @@
 ## Disk speed
 To test disk IO, here's a one liner that will write a file of all zero's to a target location.
 
- dd if=/dev/zero of=<testing dir>/tmp.data bs=10G count=1 oflag=dsync
+    dd if=/dev/zero of=<testing dir>/tmp.data bs=10G count=1 oflag=dsync
 
 Example Results for *Plankline-2*:
 
@@ -85,13 +85,14 @@ Add "www-port=80", then restart the service:
 
 
 == Set password == 
-
+```
     sudo passwd plankline
+```
 
 == Set hostname ==
-
+```
     hostnamectl set-hostname plankline-1
-
+```
 
 == Add users ==
 

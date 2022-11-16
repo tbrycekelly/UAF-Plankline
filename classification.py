@@ -168,3 +168,7 @@ if __name__ == "__main__":
     timer_pool = time() - timer_pool
     logger.debug(f"Finished classification in {timer_pool:.3f} seconds.")
     print(f"Finished Classification in {timer_pool:.1f} seconds.")
+
+    logger.debug(f"Copying ini file to classification directory {classification_dir}")
+    shutil.copy2(args.config, classification_dir + '/' + datetime.datetime.now() + args.config)
+    logger.debug("Done.")

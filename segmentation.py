@@ -190,3 +190,8 @@ if __name__ == "__main__":
 
     logger.debug(f"Finished segmentation in {timer_pool:.3f} s.")
     print(f"Finished segmentation in {timer_pool:.1f} seconds.")
+
+    logger.debug(f"Copying ini file to segmentation directory {segment_dir}")
+    shutil.copy2(args.config, classification_dir + '/' + datetime.datetime.now() + args.config)
+    logger.debug("Done.")
+    

@@ -3,6 +3,17 @@
 These are common utilitie and prerequisites for one or more of the steps recommended by this setup document.
 
     sudo apt-get install r-base net-tools cifs-utils ethtool aptitude libopencv-dev libgdal-dev
+    sudo aptitude install nvidia-cuda-toolkit
+
+
+### Kernel Version
+
+The kernel version we want for the K80 Nvidia cards is **limux-image-5.15.0-53-generic**.
+
+And to prevent future upgrades (and driver issues):
+
+    sudo apt-mark hold linux-image-5.15.0-53-generic
+
 
 ## Setup /opt Directory
 
@@ -45,20 +56,38 @@ Add "www-port=80", then restart the service:
 Run this for whatever configuration we use. **TODO** Possibly other cuda requirements are needed, but I had this in my notes for the K80 setup I did.
 
     sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/3bf863cc.pub
+    wget https://developer.download.nvidia.com/compute/cuda/repos/$distro/$arch/cuda-keyring_1.0-1_all.deb
+    sudo dpkg -i cuda-keyring_1.0-1_all.deb
     sudo aptitude install libsparsehash-dev cuda-nvcc-11-8 libcublas-11-8 libcublas-dev-11-8
 
 ### Nvidia Drivers for **Tesla** cards:
 
     sudo aptitude install libnvidia-compute-470 nvidia-utils-470 nvidia-driver-470
+    sudo ldconfig
+
 
 ### Nvidia Drivers for **GTX** cards:
     
     sudo aptitude install libnvidia-compute-515 nvidia-utils-515 nvidia-driver-515
+    sudo ldconfig
+
 
 ### Monitoring NVIDIA processes
 
     watch -d -n 0.5 nvidia-smi
     nvtop
+
+
+## SCNN Setup and Use
+### Building SCNN from source
+
+    git clone XXX
+    cd UAF-SCNN/build
+    make clean; make wp2
+
+If there are undefined refences, check that the LIBS line in build/Makefile is the output of `pkg-config opencv --cflags --libs` and inclues `-lcublas`
+
+
 
 
 ## 10G Fiber

@@ -62,9 +62,13 @@ Run this for whatever configuration we use. **TODO** Possibly other cuda require
 
 ### Nvidia Drivers for **Tesla** cards:
 
+<<<<<<< Updated upstream
     sudo aptitude install libnvidia-compute-470 nvidia-utils-470 nvidia-driver-470
     sudo ldconfig
 
+=======
+    sudo aptitude install libnvidia-compute-470 nvidia-utils-470 nvidia-driver-470-server
+>>>>>>> Stashed changes
 
 ### Nvidia Drivers for **GTX** cards:
     
@@ -208,6 +212,18 @@ Add line: "//10.25.187.104/shuttle	/mnt/shuttle	cifs	user=tbkelly,pass=HelloTom2
     sudo nano /etc/sysctl.conf
 
 add "vm.swappiness=1" to the file.
+
+
+## Setup Backups
+
+    sudo aptitude install timeshift
+    sudo timeshift --create
+
+Using NoMachine (or local monitor), open timshift and setup automatic scheduled backups. I'd recommend keeping 5 daily, 4 weekly, and 12 monthly backups. Or, using teh CLI:
+
+    sudo nano /etc/timeshift/timeshift.json
+
+
 
 # Performance Testing
 ## Disk speed

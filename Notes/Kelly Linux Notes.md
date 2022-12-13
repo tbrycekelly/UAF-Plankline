@@ -13,11 +13,20 @@ Python Related
 
 Misc
 
-    sudo apt install perl libnet-ssleay-perl openssl libauthen-pam-perl libpam-runtime libio-pty-perl apt-show-versions unzip 
-    sudo apt install nemo baobab ncdu htop mc bpytop
-    sudo apt install gimp digikam geeqie mplayer smplayer
-    sudo apt install libreoffice openssh-server
-    sudo apt install mesa-utils glmark2 trash-cli
+    sudo aptitude install perl libnet-ssleay-perl openssl libauthen-pam-perl libpam-runtime libio-pty-perl apt-show-versions unzip 
+    sudo aptitude install nemo baobab ncdu htop mc bpytop
+    sudo aptitude install gimp digikam geeqie mplayer smplayer
+    sudo aptitude install libreoffice openssh-server
+    sudo aptitude install mesa-utils glmark2 trash-cli
+
+NVIDIA Requirements for GPGPUs
+
+    sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/3bf863cc.pub &&
+    wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.0-1_all.deb
+
+    sudo dpkg -i cuda-keyring_1.0-1_all.deb
+    sudo aptitude update
+    sudo aptitude install libsparsehash-dev cuda-nvcc-11-8 libcublas-11-8 libcublas-dev-11-8
 
 
 ## Setup Plankline
@@ -96,10 +105,10 @@ Test it and copy it to final directory (if it works):
 ## Optional Software
 ### Install RStudio Server
 
-    sudo apt-get install gdebi-core
-    wget https://download2.rstudio.org/server/jammy/amd64/rstudio-server-2022.07.1-554-amd64.deb
-    sudo gdebi rstudio-server-2022.07.1-554-amd64.deb
-    sudo nano /etc/rstudio/rserver.conf
+    sudo apt-get install gdebi-core;
+    wget https://download2.rstudio.org/server/jammy/amd64/rstudio-server-2022.07.1-554-amd64.deb;
+    sudo gdebi rstudio-server-2022.07.1-554-amd64.deb;
+    sudo nano /etc/rstudio/rserver.conf;
 
 Add "www-port=80", then restart the service:
 
@@ -119,13 +128,6 @@ Note, that the default "home" directory for rstudio will be the home directory o
 
 # Hardware Setup
 ## Video Cards
-Run this for whatever configuration we use. **TODO** Possibly other cuda requirements are needed, but I had this in my notes for the K80 setup I did.
-
-    sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/3bf863cc.pub
-    wget https://developer.download.nvidia.com/compute/cuda/repos/$distro/$arch/cuda-keyring_1.0-1_all.deb
-    sudo dpkg -i cuda-keyring_1.0-1_all.deb
-    sudo aptitude install libsparsehash-dev cuda-nvcc-11-8 libcublas-11-8 libcublas-dev-11-8
-
 ### Nvidia Drivers for **Tesla** cards:
 
     sudo aptitude install libnvidia-compute-470 nvidia-utils-470 nvidia-driver-470-server

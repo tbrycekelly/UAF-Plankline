@@ -58,7 +58,7 @@ def classify(tar_file):
     logger.debug(f"Untarring files took {timer_untar:.3f} s.")
 
     # Perform classification.
-    scnn_cmd  = f"cd {scnn_directory}; nohup ./isiis_scnn -start {epoch} -stop {epoch} -unl {image_dir} -cD {gpu_id} >> {log_file} 2>&1"
+    scnn_cmd  = f"cd {scnn_directory}; nohup ./wp2 -start {epoch} -stop {epoch} -unl {image_dir} -cD {gpu_id} >> {log_file} 2>&1"
     logger.debug('Running SCNN: ' + scnn_cmd)
     logger.info('Start SCNN.')
 

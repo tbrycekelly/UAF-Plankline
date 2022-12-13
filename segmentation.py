@@ -118,6 +118,8 @@ def FixAviNames(avis):
 #
 if __name__ == "__main__":
 
+    v_string = "V2022.12.13"
+
     # create a parser for command line arguments
     parser = argparse.ArgumentParser(description="Segmentation tool for the plankton pipeline. Uses ffmpeg and seg_ff to segment a video into crops of plankton")
     parser.add_argument("-c", "--config", required = True, help = "Configuration ini file.")
@@ -139,12 +141,13 @@ if __name__ == "__main__":
     segment_path = config['segmentation']['segment'] # TBK: Absolute path to segmentation executable.
     fast_scratch = config['segmentation']['fast_scratch'] # TBK: Fastest IO option for temporary files.
 
+    logger.info(f"Starting plankline segmentation {v_string}")
     logger.debug(f"Segmentation on: {working_dir}")
     logger.debug(f"Number of processes: {num_processes}")
     logger.debug(f"Machine scratch: {fast_scratch}")
 
     # Print config options to screen (TBK)
-    print("Starting Plankline Segmentation Script")
+    print(f"Starting Plankline Segmentation Script {v_string}")
     print(f"Configureation file: {args.config}")
     print(f"Segmentation on: {working_dir}")
     print(f"Scratch to: {fast_scratch}")
@@ -191,7 +194,9 @@ if __name__ == "__main__":
     logger.debug(f"Finished segmentation in {timer_pool:.3f} s.")
     print(f"Finished segmentation in {timer_pool:.1f} seconds.")
 
+    cp_file = segment_dir + '/' + str(datetime.datetime.now()) + args.config
     logger.debug(f"Copying ini file to segmentation directory {segment_dir}")
-    shutil.copy2(args.config, segment_dir + '/' + str(datetime.datetime.now()) + args.config)
+    logger.info(f"Copy config to {cp_file}")
+    shutil.copy2(args.config, cp_file)
     logger.debug("Done.")
     

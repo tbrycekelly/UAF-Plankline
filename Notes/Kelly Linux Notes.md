@@ -38,6 +38,7 @@ This can be performed by any/every user on a system and can be placed in any fol
 To update an existing folder (will remove the config files present):
 
     cd ~/UAF-Plankline
+    git clean -f
     git pull
 
 To run plankline with a specific configuration file (required):
@@ -49,7 +50,7 @@ These scripts require the segmentation executable and SCNN executable to be avai
 
 ## Setup SCNN
 
-for the first install,
+For the first install,
 
     cd /opt
     sudo git clone https://github.com/tbrycekelly/UAF-SCNN.git
@@ -59,7 +60,10 @@ for the first install,
 To update from github,
 
     cd /opt/UAF-SCNN
+    git clean -f
     git pull
+
+May need to run `git config --global --add safe.directory /opt/UAF-SCNN` if permissions are not right.
 
 To build SCNN:
 
@@ -74,6 +78,17 @@ Test it and copy it to final directory (if it works):
     ./wp2
     cp ./wp2 ../scnn
 
+### Training a Neural Network
+Copy the training dataset into /opt/UAF-SCNN/Data/plankton/train so that images are in subfolders by category, e.g.: /opt/UAF-SCNN/Data/plankton/train/detritus/iamge.jpg
+
+Run classList.sh
+
+    cd /opt/UAF-SCNN/Data/plankton
+    ./classList.sh
+
+You may wish to change the minimum sample size required for a taxa to be included by modifying the `minN` value within classList.sh.
+
+
 
 ## Setup Segmentation
 
@@ -87,6 +102,7 @@ On the first install,
 To update the executable with a new version:
 
     cd /opt/UAF-Segmentation
+    git clean -f
     git pull
 
 To build the segmentation executable:

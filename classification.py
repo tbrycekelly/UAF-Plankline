@@ -58,7 +58,7 @@ def classify(tar_file):
     logger.debug(f"Untarring files took {timer_untar:.3f} s.")
 
     # Perform classification.
-    scnn_cmd  = f"cd {scnn_directory}; nohup {scnn_cmd} -start {epoch} -stop {epoch} -unl {image_dir} -cD {gpu_id} >> {log_file} 2>&1"
+    scnn_cmd  = f"cd {scnn_directory}; nohup {scnn_command} -start {epoch} -stop {epoch} -unl {image_dir} -cD {gpu_id} >> {log_file} 2>&1"
     logger.debug('Running SCNN: ' + scnn_cmd)
     logger.info('Start SCNN.')
 
@@ -113,6 +113,7 @@ if __name__ == "__main__":
     permis = int(config['general']['dir_permissions'])
     scnn_instances = int(config['classification']['scnn_instances'])
     scnn_directory = config['classification']['scnn_dir']
+    scnn_command = config['classification']['scnn_cmd']
     epoch = int(config['classification']['epoch'])
     scratch_base = os.path.abspath(config['general']['working_dir'])
 

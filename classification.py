@@ -54,7 +54,7 @@ def classify(tar_file):
     
     timer_untar = time()
     os.system(untar_cmd)
-    timer__untar = time() - timer_untar
+    timer_untar = time() - timer_untar
     logger.debug(f"Untarring files took {timer_untar:.3f} s.")
 
     # Perform classification.

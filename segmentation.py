@@ -127,8 +127,16 @@ if __name__ == "__main__":
     # read in the arguments
     args = parser.parse_args()
 
+    if os.path.isfile(args.config) == False:
+        logger.error(f"No config file found at {args.config}!")
+        exit()
+
     config = configparser.ConfigParser()
     config.read(args.config)
+
+    if config.has_option('logging', 'config') == False:
+        logger.error(f"No logging:config specified in {args.config}!")
+        exit()
 
     logging.config.fileConfig(config['logging']['config'], defaults={'date':datetime.datetime.now(),'path':config['general']['working_dir'],'name':'segmentation'})
     logger = logging.getLogger('sLogger')
@@ -156,13 +164,24 @@ if __name__ == "__main__":
     print(f"Log configuration file: {config['logging']['config']}")
     print(f"Compressing output: {config['general']['compress_output'] == 'True'}")
 
+    # Check the permissions
+    if os.access(working_dir, os.W_OK) == False:
+        logger.error(f"Cannot write to project directory {working_dir}!")
+        exit()
+
+    if os.access(fast_scratch, os.W_OK) == False:
+        logger.error(f"Cannot write to temporary directory {fast_scratch}!")
+        exit()
 
     # setup the output segmentation and measurements dir
     raw_dir = working_dir + "/raw"
     segment_dir = working_dir + "/segmentation"
+    fast_scratch = fast_scratch + "/segment"
 
     logger.info("Setting up directories.")
+    logger.debug(f"Setting up {segment_dir} and {fast_scratch}")
     os.makedirs(segment_dir, permis, exist_ok = True)
+    os.makedirs(fast_scratch, permis, exist_ok = True)
 
     logger.info("Starting AVI loop.")
 
@@ -193,6 +212,9 @@ if __name__ == "__main__":
 
     logger.debug(f"Finished segmentation in {timer_pool:.3f} s.")
     print(f"Finished segmentation in {timer_pool:.1f} seconds.")
+
+    logger.debug(f"Deleting temporary directory {fast_scratch}.")
+    shutil.rmtree(fast_scratch, ignore_errors=True)
 
     cp_file = segment_dir + '/' + str(datetime.datetime.now()) + ' ' + args.config
     logger.debug(f"Copying ini file to segmentation directory {segment_dir}")

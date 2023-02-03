@@ -26,13 +26,13 @@ def classify(tar_file):
     if config['general']['compress_output'] == 'True':
         image_dir = tar_file.replace(".tar.gz", "") # remove extension
         tar_identifier = os.path.basename(image_dir)
-        tmp_dir = config['segmentation']['fast_scratch'] + '/' + tar_identifier
+        tmp_dir = fast_scratch + '/' + tar_identifier
         os.makedirs(tmp_dir, permis, exist_ok = True)
         log_file = f"{classification_dir}/{tar_identifier}-{date}.log"
     else:
         image_dir = tar_file.replace(".tar", "") # remove extension
         tar_identifier = os.path.basename(image_dir)
-        tmp_dir = config['segmentation']['fast_scratch'] + '/' + tar_identifier
+        tmp_dir = fast_scratch + '/' + tar_identifier
         os.makedirs(tmp_dir, permis, exist_ok = True)
         log_file = f"{classification_dir}/{tar_identifier}-{date}.log"
 
@@ -115,22 +115,33 @@ if __name__ == "__main__":
     scnn_directory = config['classification']['scnn_dir']
     scnn_command = config['classification']['scnn_cmd']
     epoch = int(config['classification']['epoch'])
-    scratch_base = os.path.abspath(config['general']['working_dir'])
-
+    working_dir = os.path.abspath(config['general']['working_dir'])
+    fast_scratch = config['segmentation']['fast_scratch']
 
     # Print config options to screen (TBK)
     logger.info(f"Starting plankline classification {v_string}")
     print(f"Starting Plankline Classification Script {v_string}")
     print(f"Configureation file: {args.config}")
-    print(f"Segmentation on: {scratch_base}")
+    print(f"Segmentation on: {working_dir}")
     print(f"Number of instances: {scnn_instances}")
     print(f"Epoch: {epoch}")
     print(f"Log configuration file: {config['logging']['config']}")
 
+    #  Check the permissions
+    if os.access(working_dir, os.W_OK) == False:
+        logger.error(f"Cannot write to project directory {working_dir}!")
+        exit()
+
+    if os.access(fast_scratch, os.W_OK) == False:
+        logger.error(f"Cannot write to temporary directory {fast_scratch}!")
+        exit()
+
     # segmentation_dir is where the input data is taken from
-    segmentation_dir = scratch_base + "/segmentation"
-    classification_dir = scratch_base + "/classification"
+    segmentation_dir = working_dir + "/segmentation"
+    classification_dir = working_dir + "/classification"
+    fast_scratch = fast_scratch + "/segment"
     os.makedirs(classification_dir, permis, exist_ok = True)
+    os.makedirs(fast_scratch, permis, exist_ok = True)
 
     # make sure this is a valid directory
     if not os.path.exists(segmentation_dir):
@@ -172,6 +183,9 @@ if __name__ == "__main__":
     timer_pool = time() - timer_pool
     logger.debug(f"Finished classification in {timer_pool:.3f} seconds.")
     print(f"Finished Classification in {timer_pool:.1f} seconds.")
+
+    logger.debug(f"Deleting temporary directory {fast_scratch}.")
+    shutil.rmtree(fast_scratch, ignore_errors=True)
 
     cp_file = classification_dir + '/' + str(datetime.datetime.now()) + ' ' + args.config
     logger.debug(f"Copying ini file to classification directory {classification_dir}")

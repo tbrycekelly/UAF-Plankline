@@ -118,7 +118,7 @@ def FixAviNames(avis):
 #
 if __name__ == "__main__":
 
-    v_string = "V2022.12.13"
+    v_string = "V2023.02.02"
 
     # create a parser for command line arguments
     parser = argparse.ArgumentParser(description="Segmentation tool for the plankton pipeline. Uses ffmpeg and seg_ff to segment a video into crops of plankton")
@@ -194,7 +194,7 @@ if __name__ == "__main__":
     logger.debug(f"Finished segmentation in {timer_pool:.3f} s.")
     print(f"Finished segmentation in {timer_pool:.1f} seconds.")
 
-    cp_file = segment_dir + '/' + str(datetime.datetime.now()) + args.config
+    cp_file = segment_dir + '/' + str(datetime.datetime.now()) + ' ' + args.config
     logger.debug(f"Copying ini file to segmentation directory {segment_dir}")
     logger.info(f"Copy config to {cp_file}")
     shutil.copy2(args.config, cp_file)

@@ -95,7 +95,7 @@ def classify(tar_file):
 # __main__
 #
 if __name__ == "__main__":
-    v_string = "V2022.12.13"
+    v_string = "V2023.02.02"
 
     # create a parser for command line arguments
     parser = argparse.ArgumentParser(description="Classification tool for managing the isiis_scnn processes")
@@ -172,7 +172,7 @@ if __name__ == "__main__":
     logger.debug(f"Finished classification in {timer_pool:.3f} seconds.")
     print(f"Finished Classification in {timer_pool:.1f} seconds.")
 
-    cp_file = classification_dir + '/' + str(datetime.datetime.now()) + args.config
+    cp_file = classification_dir + '/' + str(datetime.datetime.now()) + ' ' + args.config
     logger.debug(f"Copying ini file to classification directory {classification_dir}")
     logger.info(f"Copy of log file in {cp_file}")
     shutil.copy2(args.config, cp_file)

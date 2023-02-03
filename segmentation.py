@@ -128,16 +128,17 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if os.path.isfile(args.config) == False:
-        logger.error(f"No config file found at {args.config}!")
+        print(f"No config file found at {args.config}!")
         exit()
 
     config = configparser.ConfigParser()
     config.read(args.config)
 
     if config.has_option('logging', 'config') == False:
-        logger.error(f"No logging:config specified in {args.config}!")
+        print(f"No logging:config specified in {args.config}!")
         exit()
 
+    ## Setup logger
     logging.config.fileConfig(config['logging']['config'], defaults={'date':datetime.datetime.now(),'path':config['general']['working_dir'],'name':'segmentation'})
     logger = logging.getLogger('sLogger')
 

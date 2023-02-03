@@ -128,14 +128,14 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if os.path.isfile(args.config) == False:
-        print(f"No config file found at {args.config}!")
+        print(f"No config file found called {args.config}. Aborting!")
         exit()
 
     config = configparser.ConfigParser()
     config.read(args.config)
 
     if config.has_option('logging', 'config') == False:
-        print(f"No logging:config specified in {args.config}!")
+        print(f"No logging:config specified in {args.config}. Aborting!")
         exit()
 
     ## Setup logger

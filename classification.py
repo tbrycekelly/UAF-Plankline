@@ -73,7 +73,7 @@ def classify(tar_file):
     csv_path = glob.glob(f"{scnn_directory}/Data/plankton/*{tar_identifier[10:]}*")
     if len(csv_path) > 0:
         csv_path = csv_path[0]
-        csv_file = f"{classification_dir}/{tar_identifier}-{date}.csv"
+        csv_file = f"{classification_dir}/{tar_identifier}.csv"
 
         timer_move = time()
         shutil.move(csv_path, csv_file)
@@ -90,6 +90,17 @@ def classify(tar_file):
     logger.debug('End classify.')
     timer_classify = time() - timer_classify
     logger.debug(f"Total classification process took {timer_classify:.3f} s.")
+
+    if config['R']['preprocess']:
+        timer_pre = time()
+        logger.debug('Preprocessing requested.')
+
+        pre_cmd = "Rscript " + config['R']['script'] + ' ' + config['R']['dt'] + ' ' + config['R']['p_threshold'] + ' ' + csv_file
+        logger.debug(f"Running preprocessing cmd: {pre_cmd}")
+        os.system(pre_cmd)
+        
+        timer_pre = time() - timer_pre
+        logger.debug(f"Preprocessing took {timer_pre:.3f} s.")
 
 #----------------------------------------------------------------------------------------
 # __main__

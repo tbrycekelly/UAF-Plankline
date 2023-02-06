@@ -98,7 +98,7 @@ def classify(tar_file):
         pre_cmd = "Rscript " + config['R']['script'] + ' ' + config['R']['dt'] + ' ' + config['R']['p_threshold'] + ' ' + csv_file
         logger.debug(f"Running preprocessing cmd: {pre_cmd}")
         os.system(pre_cmd)
-        
+
         timer_pre = time() - timer_pre
         logger.debug(f"Preprocessing took {timer_pre:.3f} s.")
 
@@ -115,11 +115,13 @@ if __name__ == "__main__":
 
     # read in the arguments
     args = parser.parse_args()
-    config = configparser.ConfigParser() # TBK
-    config.read(args.config) # TBK
+    config = configparser.ConfigParser()
+    if os.path.exists('default.ini'):
+        config.read('default.ini')
+    config.read(args.config)
 
     logging.config.fileConfig(config['logging']['config'], defaults={'date':datetime.datetime.now(),'path':config['general']['working_dir'],'name':'classification'}) # TBK
-    logger = logging.getLogger('sLogger') # TBK
+    logger = logging.getLogger('sLogger')
 
     permis = int(config['general']['dir_permissions'])
     scnn_instances = int(config['classification']['scnn_instances'])

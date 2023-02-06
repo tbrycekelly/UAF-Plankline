@@ -132,6 +132,8 @@ if __name__ == "__main__":
         exit()
 
     config = configparser.ConfigParser()
+    if os.path.exists('default.ini'):
+        config.read('default.ini')
     config.read(args.config)
 
     if config.has_option('logging', 'config') == False:

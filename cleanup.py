@@ -2,14 +2,7 @@ import os
 import sys
 import shutil
 import argparse
-import logging # TBK: logging module
-import logging.config # TBK
 import configparser # TBK: To read config file
-import tqdm # TBK
-from time import time
-
-from multiprocessing import Pool
-import datetime
 
 if __name__ == "__main__":
 

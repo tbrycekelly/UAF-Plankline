@@ -77,7 +77,7 @@ def classify(tar_file):
 
         timer_move = time()
         shutil.move(csv_path, csv_file)
-        os.chmod(csv_file, config['general']['dir_permissions'])
+        os.chmod(csv_file, permis)
         timer_move = time() - timer_move
         logger.debug(f"Moving csv(s) took {timer_move:.3f} s.")
         

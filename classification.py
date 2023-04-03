@@ -77,6 +77,7 @@ def classify(tar_file):
 
         timer_move = time()
         shutil.move(csv_path, csv_file)
+        os.chmod(csv_file, config['general']['dir_permissions'])
         timer_move = time() - timer_move
         logger.debug(f"Moving csv(s) took {timer_move:.3f} s.")
         
@@ -106,7 +107,7 @@ def classify(tar_file):
 # __main__
 #
 if __name__ == "__main__":
-    v_string = "V2023.02.02"
+    v_string = "V2023.04.02"
 
     # create a parser for command line arguments
     parser = argparse.ArgumentParser(description="Classification tool for managing the isiis_scnn processes")

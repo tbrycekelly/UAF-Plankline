@@ -25,6 +25,8 @@ def seg_ff(avi, seg_output, SNR, segment_path):
     seg = f'nohup {segment_path} -i {avi} -n 1 -o {seg_output} -s {snr} -e {epsilon} -M {max_area} -m {min_area} -d {delta} {full_output} >> "{segment_log}" 2>&1'
     logger.info("Segmentation call: " + seg)
 
+    os.chmod(seg_output, config['general']['dir_permissions'])
+
     timer_seg = time()
     os.system(seg)
     timer_seg = time() - timer_seg
@@ -80,6 +82,7 @@ def local_main(avi):
         
         timer_tar = time()
         os.system(tar)
+        os.chmod(tar_name, permis)
         timer_tar = time() - timer_tar
 
         logger.info(f'End tarring+compressing in {timer_tar:.3f} s.')
@@ -91,6 +94,7 @@ def local_main(avi):
 
         timer_tar = time()
         os.system(tar)
+        os.chmod(tar_name, permis)
         timer_tar = time() - timer_tar
 
         logger.info(f'End tarring in {timer_tar:.3f} s.')
@@ -118,7 +122,7 @@ def FixAviNames(avis):
 #
 if __name__ == "__main__":
 
-    v_string = "V2023.02.02"
+    v_string = "V2023.04.02"
 
     # create a parser for command line arguments
     parser = argparse.ArgumentParser(description="Segmentation tool for the plankton pipeline. Uses ffmpeg and seg_ff to segment a video into crops of plankton")

@@ -243,7 +243,7 @@ Save. Ctrl + x  y
 ## Scratch Filesystem
 To setup a very fast scratch drive, add the following mount configuration to `/etc/fstab`
 
-    tmpfs /tmp tmpfs defaults,noatime,nosuid,nodev,mode=1777,size=60G 0 0
+    tmpfs /tmp tmpfs defaults,noatime,nosuid,nodev,mode=777,size=60G 0 0
 
 ## Setup Firewall
 To check the status of the firewall:

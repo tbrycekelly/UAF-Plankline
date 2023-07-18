@@ -46,10 +46,10 @@ def classify(tar_file):
 
     # Untar files
     if config['general']['compress_output'] == 'True':
-        untar_cmd = f'tar -xzf {tar_file} -C {image_dir} --strip-components=4 --wildcards "*.png"  >> {log_file} 2>&1' # TBK change strip-components to what you need.
+        untar_cmd = f'tar -xzf "{tar_file}" -C "{image_dir}" --strip-components=4 --wildcards "*.png"  >> "{log_file}" 2>&1' # TBK change strip-components to what you need.
         logger.debug('Untarring+unzipping files: ' + untar_cmd)
     else:
-        untar_cmd = f'tar -xf {tar_file} -C {image_dir} --strip-components=4 --wildcards "*.png"  >> {log_file} 2>&1' # TBK change strip-components to what you need.
+        untar_cmd = f'tar -xf "{tar_file}" -C "{image_dir}" --strip-components=4 --wildcards "*.png"  >> "{log_file}" 2>&1' # TBK change strip-components to what you need.
         logger.debug('Untarring files: ' + untar_cmd)
     
     timer_untar = time()
@@ -58,7 +58,7 @@ def classify(tar_file):
     logger.debug(f"Untarring files took {timer_untar:.3f} s.")
 
     # Perform classification.
-    scnn_cmd  = f"cd {scnn_directory}; nohup {scnn_command} -start {epoch} -stop {epoch} -unl {image_dir} -cD {gpu_id} >> {log_file} 2>&1"
+    scnn_cmd  = f"cd '{scnn_directory}'; nohup '{scnn_command}' -start {epoch} -stop {epoch} -unl '{image_dir}' -cD {gpu_id} >> '{log_file}' 2>&1"
     logger.debug('Running SCNN: ' + scnn_cmd)
     logger.info('Start SCNN.')
 
@@ -96,7 +96,7 @@ def classify(tar_file):
         timer_pre = time()
         logger.debug('Preprocessing requested.')
 
-        pre_cmd = "Rscript " + config['R']['script'] + ' ' + config['R']['dt'] + ' ' + config['R']['p_threshold'] + ' ' + csv_file
+        pre_cmd = 'Rscript "' + config['R']['script'] + '" ' + config['R']['dt'] + ' ' + config['R']['p_threshold'] + ' "' + csv_file + '"'
         logger.debug(f"Running preprocessing cmd: {pre_cmd}")
         os.system(pre_cmd)
 
@@ -107,12 +107,12 @@ def classify(tar_file):
 # __main__
 #
 if __name__ == "__main__":
-    v_string = "V2023.04.02"
+    v_string = "V2023.07.13"
 
     # create a parser for command line arguments
     parser = argparse.ArgumentParser(description="Classification tool for managing the isiis_scnn processes")
     parser.add_argument("-c", "--config", required = True, help = "Configuration ini file.")
-
+    parser.add_argument("-d", "--directory", required = False)
 
     # read in the arguments
     args = parser.parse_args()
@@ -121,7 +121,12 @@ if __name__ == "__main__":
         config.read('default.ini')
     config.read(args.config)
 
-    logging.config.fileConfig(config['logging']['config'], defaults={'date':datetime.datetime.now(),'path':config['general']['working_dir'],'name':'classification'}) # TBK
+    if args.directory is not None:
+        working_dir = os.path.abspath(args.directory)
+    else:
+        working_dir = os.path.abspath(config['general']['working_dir'])
+
+    logging.config.fileConfig(config['logging']['config'], defaults={'date':datetime.datetime.now().strftime("%Y%m%d-%H%M%S"),'path':working_dir,'name':'classification'}) # TBK
     logger = logging.getLogger('sLogger')
 
     permis = int(config['general']['dir_permissions'])
@@ -129,7 +134,6 @@ if __name__ == "__main__":
     scnn_directory = config['classification']['scnn_dir']
     scnn_command = config['classification']['scnn_cmd']
     epoch = int(config['classification']['epoch'])
-    working_dir = os.path.abspath(config['general']['working_dir'])
     fast_scratch = config['segmentation']['fast_scratch']
 
     # Print config options to screen (TBK)
@@ -153,7 +157,7 @@ if __name__ == "__main__":
     # segmentation_dir is where the input data is taken from
     segmentation_dir = working_dir + "/segmentation"
     classification_dir = working_dir + "/classification"
-    fast_scratch = fast_scratch + "/segment"
+    fast_scratch = fast_scratch + "/classify-" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     os.makedirs(classification_dir, permis, exist_ok = True)
     os.makedirs(fast_scratch, permis, exist_ok = True)
 

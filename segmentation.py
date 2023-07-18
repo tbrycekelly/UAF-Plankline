@@ -22,7 +22,7 @@ def seg_ff(avi, seg_output, SNR, segment_path):
     segment_log = working_dir + '/segmentation/segment_' + str(datetime.datetime.now()) + '.log'
     full_output = config['segmentation']['full_output']
 
-    seg = f'nohup {segment_path} -i {avi} -n 1 -o {seg_output} -s {snr} -e {epsilon} -M {max_area} -m {min_area} -d {delta} {full_output} >> "{segment_log}" 2>&1'
+    seg = f'nohup \"{segment_path}\" -i \"{avi}\" -n 1 -o \"{seg_output}\" -s {snr} -e {epsilon} -M {max_area} -m {min_area} -d {delta} {full_output} >> \"{segment_log}\" 2>&1'
     logger.info("Segmentation call: " + seg)
 
     os.chmod(seg_output, permis)
@@ -77,7 +77,7 @@ def local_main(avi):
     if config['general']['compress_output'] == 'True':
         logger.info('Start tarring+compressing.')
         tar_name = out_dir + ".tar.gz"
-        tar = f"tar czf {tar_name} -C {seg_output} ."
+        tar = f'tar czf \"{tar_name}\" -C \"{seg_output}\" .'
         logger.debug(tar)
         
         timer_tar = time()
@@ -89,7 +89,7 @@ def local_main(avi):
     else:
         logger.info('Start tarring')
         tar_name = out_dir + ".tar"
-        tar = f"tar cf {tar_name} -C {seg_output} ."
+        tar = f'tar cf \"{tar_name}\" -C \"{seg_output}\" .'
         logger.debug(tar)
 
         timer_tar = time()
@@ -122,11 +122,12 @@ def FixAviNames(avis):
 #
 if __name__ == "__main__":
 
-    v_string = "V2023.04.02"
+    v_string = "V2023.07.13"
 
     # create a parser for command line arguments
     parser = argparse.ArgumentParser(description="Segmentation tool for the plankton pipeline. Uses ffmpeg and seg_ff to segment a video into crops of plankton")
     parser.add_argument("-c", "--config", required = True, help = "Configuration ini file.")
+    parser.add_argument("-d", "--directory", required = False, help = "Input directory containing ./raw/")
 
     # read in the arguments
     args = parser.parse_args()
@@ -144,15 +145,19 @@ if __name__ == "__main__":
         print(f"No logging:config specified in {args.config}. Aborting!")
         exit()
 
+    if args.directory is not None:
+        working_dir = os.path.abspath(args.directory)
+    else:
+        working_dir = os.path.abspath(config['general']['working_dir'])
+
     ## Setup logger
-    logging.config.fileConfig(config['logging']['config'], defaults={'date':datetime.datetime.now(),'path':config['general']['working_dir'],'name':'segmentation'})
+    logging.config.fileConfig(config['logging']['config'], defaults={'date':datetime.datetime.now().strftime("%Y%m%d-%H%M%S"),'path':working_dir,'name':'segmentation'})
     logger = logging.getLogger('sLogger')
 
     ## Read in config options:
     permis = int(config['general']['dir_permissions'])
     SNR = int(config['segmentation']['signal_to_noise'])
     num_processes = int(config['segmentation']['segment_processes'])
-    working_dir = os.path.abspath(config['general']['working_dir']) # TBK: Working directory
     segment_path = config['segmentation']['segment'] # TBK: Absolute path to segmentation executable.
     fast_scratch = config['segmentation']['fast_scratch'] # TBK: Fastest IO option for temporary files.
 
@@ -183,7 +188,7 @@ if __name__ == "__main__":
     # setup the output segmentation and measurements dir
     raw_dir = working_dir + "/raw"
     segment_dir = working_dir + "/segmentation"
-    fast_scratch = fast_scratch + "/segment"
+    fast_scratch = fast_scratch + "/segment-" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 
     logger.info("Setting up directories.")
     logger.debug(f"Setting up {segment_dir} and {fast_scratch}")
@@ -195,7 +200,7 @@ if __name__ == "__main__":
     avis = []
     logger.info("Looking at avi filepaths without lazy_transfer")
     avis = [os.path.join(raw_dir, avi) for avi in os.listdir(raw_dir) if avi.endswith(".avi")]
-    avis = FixAviNames(avis)
+    #avis = FixAviNames(avis)
 
     logger.debug("Found {length} AVI files.".format(length = len(avis)))
     print("Found {length} AVI files.".format(length = len(avis)))

@@ -245,6 +245,46 @@ To setup a very fast scratch drive, add the following mount configuration to `/e
 
     tmpfs /tmp tmpfs defaults,noatime,nosuid,nodev,mode=777,size=60G 0 0
 
+
+## Setup Samba
+
+    sudo aptitude install samba
+    sudo nano /etc/samba/smb.conf
+
+
+Inside the smb.conf file, go to the bottom of the file and add the following (or something similar). This will setup a share named _ingest_ which will be writable by everyone (no security) on the network.
+
+    [ingest]
+        comment = Plankline data drive.
+        path = /media/plankline/ingest
+        browsable = yes
+        guest ok = yes
+        read only = no
+        create mask = 0777
+
+Can do the same for an output directory share.
+
+    [output]
+        comment = Plankline output drive.
+        path = /media/plankline/data
+        browsable = yes
+        guest ok = yes
+        read only = no
+        create mask = 0777
+
+
+Create the directory given above:
+
+    sudo mkdir -p /media/plankline/ingest
+    sudo chown nobody:nogroup /media/plankline/ingest
+
+Restart samba to apply the edits.
+
+    sudo systemctl restart smbd.service
+
+The folder /media/plankline/ingest should now be available as \\plankline-X\ingest from any file manager or as http://plankline-x/ingest from the browser.
+
+
 ## Setup Firewall
 To check the status of the firewall:
 
@@ -268,7 +308,6 @@ To View Rules and Delete them:
 
     sudo ufw status numbered
     sudo ufw delete XX
-
 
 
 ## Misc Linux Tasks

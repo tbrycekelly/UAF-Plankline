@@ -1,5 +1,5 @@
 # Documentation for UAF-Plankline
-N.B. This version of plankline was forked and adapted significantly from the [original OSU version](https://zenodo.org/record/4641158)(DOI: 10.5281/zenodo.4641158)[1](#1). The following is a high-level summary of the changes applied in no particular order.
+N.B. This version of plankline was forked and adapted significantly from the [original OSU version](https://zenodo.org/record/4641158)(DOI: 10.5281/zenodo.4641158)[[1]](#1). The following is a high-level summary of the changes applied in no particular order.
 
 1. The segmentation and SCNN executables have been relocated to /opt/Threshold-MSER and /opt/SCNN, respectively. This allows all users to use these utilities without having to change/fix the paths.
 

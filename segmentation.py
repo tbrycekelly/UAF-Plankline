@@ -122,12 +122,13 @@ def FixAviNames(avis):
 #
 if __name__ == "__main__":
 
-    v_string = "V2023.07.13"
-
+    v_string = "V2023.08.11"
+    print(f"Starting Plankline Segmentation Script {v_string}")
+    
     # create a parser for command line arguments
     parser = argparse.ArgumentParser(description="Segmentation tool for the plankton pipeline. Uses ffmpeg and seg_ff to segment a video into crops of plankton")
     parser.add_argument("-c", "--config", required = True, help = "Configuration ini file.")
-    parser.add_argument("-d", "--directory", required = False, help = "Input directory containing ./raw/")
+    parser.add_argument("-d", "--directory", required = True, help = "Input directory containing ./raw/")
 
     # read in the arguments
     args = parser.parse_args()
@@ -145,10 +146,7 @@ if __name__ == "__main__":
         print(f"No logging:config specified in {args.config}. Aborting!")
         exit()
 
-    if args.directory is not None:
-        working_dir = os.path.abspath(args.directory)
-    else:
-        working_dir = os.path.abspath(config['general']['working_dir'])
+    working_dir = os.path.abspath(args.directory)
 
     ## Setup logger
     logging.config.fileConfig(config['logging']['config'], defaults={'date':datetime.datetime.now().strftime("%Y%m%d-%H%M%S"),'path':working_dir,'name':'segmentation'})
@@ -167,7 +165,6 @@ if __name__ == "__main__":
     logger.debug(f"Machine scratch: {fast_scratch}")
 
     # Print config options to screen (TBK)
-    print(f"Starting Plankline Segmentation Script {v_string}")
     print(f"Configureation file: {args.config}")
     print(f"Segmentation on: {working_dir}")
     print(f"Scratch to: {fast_scratch}")
@@ -198,7 +195,7 @@ if __name__ == "__main__":
     logger.info("Starting AVI loop.")
 
     avis = []
-    logger.info("Looking at avi filepaths without lazy_transfer")
+    logger.info("Looking at avi filepaths.")
     avis = [os.path.join(raw_dir, avi) for avi in os.listdir(raw_dir) if avi.endswith(".avi")]
     #avis = FixAviNames(avis)
 
@@ -206,7 +203,7 @@ if __name__ == "__main__":
     print("Found {length} AVI files.".format(length = len(avis)))
 
     if (len(avis) == 0):
-        logger.error("No avi files found in machine_scratch/raw make sure avi files are there")
+        logger.error(f"No avi files found in machine_scratch/raw make sure avi files are in {raw_dir}.")
         exit()
 
     # Parallel portion of the code.

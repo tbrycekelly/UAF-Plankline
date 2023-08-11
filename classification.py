@@ -107,12 +107,13 @@ def classify(tar_file):
 # __main__
 #
 if __name__ == "__main__":
-    v_string = "V2023.07.13"
+    v_string = "V2023.08.11"
+    print(f"Starting Plankline Classification Script {v_string}")
 
     # create a parser for command line arguments
     parser = argparse.ArgumentParser(description="Classification tool for managing the isiis_scnn processes")
     parser.add_argument("-c", "--config", required = True, help = "Configuration ini file.")
-    parser.add_argument("-d", "--directory", required = False)
+    parser.add_argument("-d", "--directory", required = True)
 
     # read in the arguments
     args = parser.parse_args()
@@ -121,10 +122,7 @@ if __name__ == "__main__":
         config.read('default.ini')
     config.read(args.config)
 
-    if args.directory is not None:
-        working_dir = os.path.abspath(args.directory)
-    else:
-        working_dir = os.path.abspath(config['general']['working_dir'])
+    working_dir = os.path.abspath(args.directory)
 
     logging.config.fileConfig(config['logging']['config'], defaults={'date':datetime.datetime.now().strftime("%Y%m%d-%H%M%S"),'path':working_dir,'name':'classification'}) # TBK
     logger = logging.getLogger('sLogger')
@@ -138,7 +136,6 @@ if __name__ == "__main__":
 
     # Print config options to screen (TBK)
     logger.info(f"Starting plankline classification {v_string}")
-    print(f"Starting Plankline Classification Script {v_string}")
     print(f"Configureation file: {args.config}")
     print(f"Segmentation on: {working_dir}")
     print(f"Number of instances: {scnn_instances}")
@@ -163,7 +160,8 @@ if __name__ == "__main__":
 
     # make sure this is a valid directory
     if not os.path.exists(segmentation_dir):
-        sys.exit("No directory segmentation")
+        logger.error(f"Segmentation directory {segmentation_dir} does not exist (and it should)!")
+        exit()
 
     if config['general']['compress_output'] == 'True':
         tars = [os.path.join(segmentation_dir, tar) for tar in os.listdir(segmentation_dir) if tar.endswith(".tar.gz")]
@@ -198,6 +196,7 @@ if __name__ == "__main__":
 
     p.close()
     p.join() # blocks so that we can wait for the processes to finish
+    
     timer_pool = time() - timer_pool
     logger.debug(f"Finished classification in {timer_pool:.3f} seconds.")
     print(f"Finished Classification in {timer_pool:.1f} seconds.")

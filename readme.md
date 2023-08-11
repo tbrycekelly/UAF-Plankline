@@ -6,8 +6,8 @@ Scripts were originally from the Plankline project controlled by OSU (citation's
 
 Follow the links below for documentation of each of these subjects:
 
-# [General Setup](Notes/General%20Setup.md)
-# [Plankline](Notes/Plankline.md)
-# [Morphocluster](Notes/Morphocluster.md)
+1. [General Setup](Notes/General%20Setup.md)
+2. [Plankline](Notes/Plankline.md)
+3. [Morphocluster](Notes/Morphocluster.md)
 
 

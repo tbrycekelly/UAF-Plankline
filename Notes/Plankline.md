@@ -1,5 +1,5 @@
 # Documentation for UAF-Plankline
-N.B. This version of plankline was forked and adapted significantly from the original OSU version. The following is a high-level summary of the changes applied in no particular order.
+N.B. This version of plankline was forked and adapted significantly from the [original OSU version](https://zenodo.org/record/4641158)(DOI: 10.5281/zenodo.4641158)[1](#1). The following is a high-level summary of the changes applied in no particular order.
 
 1. The segmentation and SCNN executables have been relocated to /opt/Threshold-MSER and /opt/SCNN, respectively. This allows all users to use these utilities without having to change/fix the paths.
 
@@ -18,5 +18,12 @@ N.B. This version of plankline was forked and adapted significantly from the ori
 
 
 
+
+
+
+
+## References
+
+<a id="1">[1]</a> Schmid, Moritz S, Daprano, Dominic, Jacobson, Kyler M, Sullivan, Christopher, Briseño-Avena, Christian, Luo, Jessica Y, & Cowen, Robert K. (2021). A Convolutional Neural Network based high-throughput image classification pipeline - code and documentation to process plankton underwater imagery using local HPC infrastructure and NSF's XSEDE (1.0.0). Zenodo. https://doi.org/10.5281/zenodo.4641158
 
 

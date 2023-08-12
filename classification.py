@@ -22,6 +22,8 @@ def classify(tar_file):
     timer_classify = time()
     logger.info("Starting classify")
     date = datetime.datetime.now().strftime("%Y-%m-%d")
+    basename = config['classification']['basename']
+    logger.debug(f"Basename for model run is {basename}.")
 
     if config['general']['compress_output'] == 'True':
         image_dir = tar_file.replace(".tar.gz", "") # remove extension
@@ -58,7 +60,7 @@ def classify(tar_file):
     logger.debug(f"Untarring files took {timer_untar:.3f} s.")
 
     # Perform classification.
-    scnn_cmd  = f"cd '{scnn_directory}'; nohup '{scnn_command}' -start {epoch} -stop {epoch} -unl '{image_dir}' -cD {gpu_id} >> '{log_file}' 2>&1"
+    scnn_cmd  = f"cd '{scnn_directory}'; nohup '{scnn_command}' -start {epoch} -stop {epoch} -unl '{image_dir}' -cD {gpu_id} -basename {basename} >> '{log_file}' 2>&1"
     logger.debug('Running SCNN: ' + scnn_cmd)
     logger.info('Start SCNN.')
 
@@ -69,8 +71,8 @@ def classify(tar_file):
     logger.debug(f"SCNN took {timer_scnn:.3f} s.")
 
     # Move the csv file resulting from classification.
-    logger.info(f"Looking for files in {scnn_directory}/Data/plankton/ that match the id: {tar_identifier}")
-    csv_path = glob.glob(f"{scnn_directory}/Data/plankton/*{tar_identifier[10:]}*")
+    logger.info(f"Looking for files in {scnn_directory}/Data/{basename}/ that match the id: {tar_identifier}")
+    csv_path = glob.glob(f"{scnn_directory}/Data/{basename}/*{tar_identifier[10:]}*")
     if len(csv_path) > 0:
         csv_path = csv_path[0]
         csv_file = f"{classification_dir}/{tar_identifier}.csv"

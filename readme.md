@@ -11,3 +11,16 @@ Follow the links below for documentation of each of these subjects:
 3. [Morphocluster](Notes/Morphocluster.md)
 
 
+
+## Getting started
+
+
+To run plankline with a specific configuration file (required):
+
+    python3 segmentation.py -c <ini> -d <dir>
+    python3 classification.py -c <ini> -d <dir>
+
+So for example:
+
+    python3 segmentation.py -c osu_test_config.ini -d /media/plankline/data/test_data
+

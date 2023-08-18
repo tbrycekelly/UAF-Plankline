@@ -80,7 +80,7 @@ if __name__ == "__main__":
 
     logger.info("Setting up directories.")
     logger.debug(f"Setting up {fast_scratch}")
-    
+
     # Copy training set, and models
     time_copy = time()
     shutil.copytree(model_dir, fast_scratch)
@@ -92,7 +92,7 @@ if __name__ == "__main__":
     for i in list(range(int(start), int(stop)+1)):
         ## Format training call:
         train = f'\"{scnn_cmd}\" -project {fast_scratch} -start {i} -stop {i+1} -batchSize {batchsize} -basename {basename} -vsp {vsp} -lrd {lrd} -ilr {ilr} -cD 0'
-        train_call = [scnn_cmd, '-project', fast_scratch, '-start', str(i), '-stop', str(i+1), '-batchSize', batchsize, '-basename', basename, '-vsp', vsp, '-lrd', lrd, '-ilr', ilr, '-cD 0']
+        train_call = [scnn_cmd, '-project', fast_scratch, '-start', str(i), '-stop', str(i+1), '-batchSize', batchsize, '-basename', basename, '-vsp', vsp, '-lrd', lrd, '-ilr', ilr, '-cD', '0']
         logger.info("Training call: " + train)
 
         result = subprocess.run(train_call, stdout = subprocess.PIPE)
@@ -104,7 +104,7 @@ if __name__ == "__main__":
     logger.debug(f"Training finished in {timer_train:.3f} s.")
     print(f"Finished training in {timer_train:.1f} seconds.")
     shutil.copytree(fast_scratch, model_dir)
-
+    shutil.rmtree(fast_scratch, ignore_errors=True)
 
     logger.debug("Done.")
     

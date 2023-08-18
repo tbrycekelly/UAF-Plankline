@@ -40,11 +40,6 @@ if __name__ == "__main__":
         print(f"No logging:config specified in {args.config}. Aborting!")
         exit()
 
-    ## Setup logger
-    logging.config.fileConfig(config['logging']['config'], defaults={'date':datetime.datetime.now().strftime("%Y%m%d-%H%M%S"),'path':model_dir,'name':'segmentation'})
-    logger = logging.getLogger('sLogger')
-
-    logger.info(f"Starting training script {v_string}")
 
     # Variables read in from the config file:
     config_version = config['general']['config_version']
@@ -60,6 +55,13 @@ if __name__ == "__main__":
     ilr = config['training']['initialLearningRate']
     permis = int(config['general']['dir_permissions'])
     
+    ## Setup logger
+    logging.config.fileConfig(config['logging']['config'], defaults={'date':datetime.datetime.now().strftime("%Y%m%d-%H%M%S"),'path':model_dir,'name':'segmentation'})
+    logger = logging.getLogger('sLogger')
+
+    logger.info(f"Starting training script {v_string}")
+
+
     # Print config options to screen (TBK)
     print(f"Configuration file: {args.config} (Version {config_version})")
     print(f"Performing training for {model_dir}")

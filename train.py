@@ -41,7 +41,7 @@ if __name__ == "__main__":
         print(f"No logging:config specified in {args.config}. Aborting!")
         exit()
 
-    output_dir = os.path.abspath(args.directory)
+    working_dir = os.path.abspath(args.directory)
     model_dir = config['training']['model_dir']
     scratch_dir = config['training']['fast_scratch']
     scnn_cmd = config['training']['scnn_cmd']

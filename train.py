@@ -47,7 +47,7 @@ if __name__ == "__main__":
     fast_scratch = config['training']['fast_scratch']
     scnn_cmd = config['training']['scnn_cmd']
     start = config['training']['start']
-    end = config['training']['end']
+    stop = config['training']['stop']
     batchsize = config['training']['batchsize']
     basename = config['training']['basename']
     vsp = config['training']['validationSetRatio']
@@ -85,13 +85,13 @@ if __name__ == "__main__":
     #os.makedirs(fast_weights, permis, exist_ok = True)
 
     # Copy training set, and models
-    shutil.copytree(model_dir, fast_data)
+    shutil.copytree(model_dir, fast_scratch)
 
     timer_train = time()
-    for i in list(range(int(start), int(end)+1)):
+    for i in list(range(int(start), int(stop)+1)):
         ## Format training call:
-        train = f'\"{scnn_cmd}\" -project {fast_scratch} -start {i} -end {i+1} -batchSize {batchsize} -basename {basename} -vsp {vsp} -lrd {lrd} -ilr {ilr} -cD 0'
-        train_call = [scnn_cmd, '-project', fast_scratch, '-start', str(i), '-end', str(i+1), '-batchSize', batchsize, '-basename', basename, '-vsp', vsp, '-lrd', lrd, 'ilr', ilr, '-cD 0']
+        train = f'\"{scnn_cmd}\" -project {fast_scratch} -start {i} -stop {i+1} -batchSize {batchsize} -basename {basename} -vsp {vsp} -lrd {lrd} -ilr {ilr} -cD 0'
+        train_call = [scnn_cmd, '-project', fast_scratch, '-start', str(i), '-stop', str(i+1), '-batchSize', batchsize, '-basename', basename, '-vsp', vsp, '-lrd', lrd, 'ilr', ilr, '-cD 0']
         logger.info("Training call: " + train)
 
         result = subprocess.run(train_call)
@@ -103,7 +103,8 @@ if __name__ == "__main__":
 
     logger.debug(f"Training finished in {timer_train:.3f} s.")
     print(f"Finished training in {timer_train:.1f} seconds.")
-    shutil.copytree(fast_weights, model_dir + "/weights")
+    shutil.copytree(fast_scratch, model_dir)
+
 
     logger.debug("Done.")
     

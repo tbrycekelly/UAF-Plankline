@@ -42,7 +42,7 @@ if __name__ == "__main__":
         exit()
 
     working_dir = os.path.abspath(args.directory)
-    
+
     model_dir = config['training']['model_dir']
     fast_scratch = config['training']['fast_scratch']
     scnn_cmd = config['training']['scnn_cmd']
@@ -91,7 +91,7 @@ if __name__ == "__main__":
     for i in list(range(int(start), int(end)+1)):
         ## Format training call:
         train = f'\"{scnn_cmd}\" -project {fast_scratch} -start {i} -end {i+1} -batchSize {batchsize} -basename {basename} -vsp {vsp} -lrd {lrd} -ilr {ilr} -cD 0'
-        train_call = [scnn_cmd, '-project', fast_scratch, '-start', i, '-end', i+1, '-batchSize', batchsize, '-basename', basename, '-vsp', vsp, '-lrd', lrd, 'ilr', ilr, '-cD 0']
+        train_call = [scnn_cmd, '-project', fast_scratch, '-start', str(i), '-end', str(i+1), '-batchSize', batchsize, '-basename', basename, '-vsp', vsp, '-lrd', lrd, 'ilr', ilr, '-cD 0']
         logger.info("Training call: " + train)
 
         result = subprocess.run(train_call)

@@ -92,6 +92,7 @@ if __name__ == "__main__":
         train = f'\"{scnn_cmd}\" -project {fast_scratch} -start {i} -stop {i+1} -batchSize {batchsize} -basename {basename} -vsp {vsp} -lrd {lrd} -ilr {ilr} -cD 0'
         train_call = [scnn_cmd, '-project', fast_scratch, '-start', str(i), '-stop', str(i+1), '-batchSize', batchsize, '-basename', basename, '-vsp', vsp, '-lrd', lrd, '-ilr', ilr, '-cD', '0']
         logger.info("Training call: " + train)
+        print(f"Starting training epoch {i}.")
 
         result = subprocess.run(train_call, stdout = subprocess.PIPE)
         result = result.stdout.decode('utf-8')

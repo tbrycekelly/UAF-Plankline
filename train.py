@@ -109,7 +109,7 @@ if __name__ == "__main__":
 
     logger.debug(f"Training finished in {timer_train:.3f} s.")
     print(f"Finished training in {timer_train:.1f} seconds.")
-    shutil.copytree(fast_scratch, model_dir)
+    shutil.copytree(fast_scratch, model_dir, ignore_errors=True, dirs_exist_ok=True)
     shutil.rmtree(fast_scratch, ignore_errors=True)
 
     logger.debug("Done.")

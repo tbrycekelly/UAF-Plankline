@@ -87,7 +87,7 @@ if __name__ == "__main__":
     shutil.copytree(model_dir, fast_data)
 
     timer_train = time()
-    for i in list(range(start, end+1)):
+    for i in list(range(int(start), int(end)+1)):
         ## Format training call:
         train = f'\"{scnn_cmd}\" -project {fast_scratch} -start {i} -end {i+1} -batchSize {batchsize} -basename {basename} -vsp {vsp} -lrd {lrd} -ilr {ilr} -cD 0'
         train_call = [scnn_cmd, '-project', fast_scratch, '-start', i, '-end', i+1, '-batchSize', batchsize, '-basename', basename, '-vsp', vsp, '-lrd', lrd, 'ilr', ilr, '-cD 0']

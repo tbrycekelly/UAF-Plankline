@@ -5,22 +5,16 @@ Updated 2023-08-11
 
 
 # Software Setup
+
 ## Recommended Installs
 These are common utilities and/or prerequisites for one or more of the steps recommended by this setup document.
 
-    sudo apt-get install r-base net-tools cifs-utils ethtool apt-get libopencv-dev libgdal-dev
-    sudo apt-get install nvidia-cuda-toolkit timeshift nvtop samba samba-client
+    sudo apt-get install r-base net-tools ethtool libopencv-dev libgdal-dev timeshift htop openssh-server unzip git
 
 __Python Related:__ We are using python3 throughout the plankline processing scripts, and need to install some additional pacakges/libraries for image processing.
 
     sudo apt-get install python3 python3-devpython3-pip python3-skimage python3-opencv
     pip3 install gpustat
-
-__Misc:__
-
-    sudo apt-get install perl libnet-ssleay-perl openssl libauthen-pam-perl libpam-runtime libio-pty-perl apt-show-versions unzip 
-    sudo apt-get install baobab ncdu htop mc bpytop
-    sudo apt-get install libreoffice openssh-server
 
 __NVIDIA Requirements for GPGPUs:__ With these commands we first install the app key used to authenticate the nvidia package that we download using wget. The following commands then install the pacakge _cuda keyring_, which allows us to download and install nvidia drivers directly. Finally we install the development tools needed to compile CUDA applications ourselves.
 
@@ -32,30 +26,32 @@ __NVIDIA Requirements for GPGPUs:__ With these commands we first install the app
     sudo apt-get install libsparsehash-dev cuda-nvcc-11-8 libcublas-11-8 libcublas-dev-11-8
 
 
-## Setup Plankline
-This can be performed by any/every user on a system and can be placed in any folder. So far we have been placing this folder, /UAF-Plankline/ in Tom's documents folder. Typical locations that make sense include ~ (home directory), ~/Desktop, ~/Documents.
+### Compile and Install OpenCV 3.4
 
-    cd ~
-    git clone https://github.com/tbrycekelly/UAF-Plankline.git
+Install the prerequisites
 
-To update an existing folder (will remove the config files present):
+    sudo apt-get install build-essential cmake libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev python3-dev python3-numpy libtbb2 libtbb-dev libsparsehash-dev
+    sudo apt-get install libjpeg-dev libpng-dev libtiff5-dev jasper libdc1394-dev libeigen3-dev libtheora-dev libvorbis-dev libxvidcore-dev libx264-dev sphinx-common libtbb-dev yasm libfaac-dev libopencore-amrnb-dev libopencore-amrwb-dev libopenexr-dev libgstreamer-plugins-base1.0-dev libavutil-dev libavfilter-dev libtesseract-dev libopenblas-dev libopenblas64-dev ccache
+  
 
-    cd ~/UAF-Plankline
-    git clean -f
-    git pull
+Get opencv2 and install it
 
-To run plankline with a specific configuration file (required):
+    cd /opt
+  
+    git clone --branch 3.4 --single-branch https://github.com/opencv/opencv.git
+    git clone --branch 3.4 --single-branch https://github.com/opencv/opencv_contrib.git
+  
+    cd opencv
+    mkdir release
+    cd release
+  
+    cmake -D BUILD_TIFF=ON -D WITH_CUDA=ON -D WITH_OPENGL=OFF -D WITH_OPENCL=OFF -D WITH_IPP=OFF -D WITH_TBB=ON -D BUILD_TBB=ON -D WITH_EIGEN=OFF -D WITH_V4L=OFF -D WITH_VTK=OFF -D BUILD_TESTS=OFF -D BUILD_PERF_TESTS=OFF -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local -D OPENCV_EXTRA_MODULES_PATH=/opt/opencv_contrib/modules /opt/opencv/
 
-    python3 segmentation.py -c <ini> -d <dir>
-    python3 classification.py -c <ini> -d <dir>
-
-So for example:
-
-    python3 segmentation.py -c osu_test_config.ini -d /media/plankline/data/test_data
-
-The segmentation.py script will read in a project directory containing a _raw_ subfolder of AVIs and will create a _segmentation_ subfolder if not already existing. Each AVI will be processed, flatfielded, and cropped to a dedicated TAR file inside _segmentation_. If using the optional _compress = True_ flag then the file will be a TAR.GZ file. Simiarly the _classification.py_ script will read in a project directory and for every file in _segmentation_ produce a classification results file in a _classification_ subfolder. Both scripts will place a copy of the configuration file used into their respective subfolders for archival purposes.
-
-These scripts require the segmentation executable and SCNN executable to be available (see below).    
+    make -j
+    sudo make install
+  
+    sudo ldconfig
+    pkg-config --modversion opencv
 
 ## Setup SCNN
 
@@ -127,6 +123,31 @@ Test it and copy it to final directory (if it works):
     cp ./segment ..
 
 
+## Setup Plankline
+This can be performed by any/every user on a system and can be placed in any folder. So far we have been placing this folder, /UAF-Plankline/ in Tom's documents folder. Typical locations that make sense include ~ (home directory), ~/Desktop, ~/Documents.
+
+    cd ~
+    git clone https://github.com/tbrycekelly/UAF-Plankline.git
+
+To update an existing folder (will remove the config files present):
+
+    cd ~/UAF-Plankline
+    git clean -f
+    git pull
+
+To run plankline with a specific configuration file (required):
+
+    python3 segmentation.py -c <ini> -d <dir>
+    python3 classification.py -c <ini> -d <dir>
+
+So for example:
+
+    python3 segmentation.py -c osu_test_config.ini -d /media/plankline/data/test_data
+
+The segmentation.py script will read in a project directory containing a _raw_ subfolder of AVIs and will create a _segmentation_ subfolder if not already existing. Each AVI will be processed, flatfielded, and cropped to a dedicated TAR file inside _segmentation_. If using the optional _compress = True_ flag then the file will be a TAR.GZ file. Simiarly the _classification.py_ script will read in a project directory and for every file in _segmentation_ produce a classification results file in a _classification_ subfolder. Both scripts will place a copy of the configuration file used into their respective subfolders for archival purposes.
+
+These scripts require the segmentation executable and SCNN executable to be available (see below).    
+
 
 ## Optional Software
 ### Install RStudio Server
@@ -162,6 +183,9 @@ Point a broswer at http://<computer name>:19999/ to verify install.
 
 # Hardware Setup
 ## Video Cards
+
+    sudo apt-get install nvidia-cuda-toolkit nvtop
+
 ### Nvidia Drivers for **Tesla** cards:
 
     sudo apt-get install libnvidia-compute-470 nvidia-utils-470 nvidia-driver-470-server
@@ -177,29 +201,6 @@ Point a broswer at http://<computer name>:19999/ to verify install.
 ### Monitoring NVIDIA processes
 
     nvtop
-
-## Compile and Install OpenCV 3.4
-
-    sudo apt-get install build-essential cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev python3-dev python3-numpy libtbb2 libtbb-dev
-
-    sudo apt-get install libjpeg-dev libpng-dev libtiff5-dev jasper libdc1394-dev libeigen3-dev libtheora-dev libvorbis-dev libxvidcore-dev libx264-dev sphinx-common libtbb-dev yasm libfaac-dev libopencore-amrnb-dev libopencore-amrwb-dev libopenexr-dev libgstreamer-plugins-base1.0-dev libavutil-dev libavfilter-dev libtesseract-dev libopenblas-dev libopenblas64-dev ccache
-  
-    cd /opt
-  
-    git clone --branch 3.4 --single-branch https://github.com/opencv/opencv.git
-    git clone --branch 3.4 --single-branch https://github.com/opencv/opencv_contrib.git
-  
-    cd opencv
-    mkdir release
-    cd release
-  
-    cmake -D BUILD_TIFF=ON -D WITH_CUDA=OFF -D WITH_OPENGL=OFF -D WITH_OPENCL=OFF -D WITH_IPP=OFF -D WITH_TBB=ON -D BUILD_TBB=ON -D WITH_EIGEN=OFF -D WITH_V4L=OFF -D WITH_VTK=OFF -D BUILD_TESTS=OFF -D BUILD_PERF_TESTS=OFF -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local -D OPENCV_EXTRA_MODULES_PATH=/opt/opencv_contrib/modules /opt/opencv/
-
-    make -j
-    sudo make install
-  
-    sudo ldconfig
-    pkg-config --modversion opencv
 
 ## 10G Fiber
 ### Install intel 10G driver ==
@@ -283,7 +284,7 @@ Add the following lines:
 
 ## Setup Samba (Windows SMB)
 
-    sudo apt-get install samba
+    sudo apt-get install samba samba-client
     sudo nano /etc/samba/smb.conf
 
 

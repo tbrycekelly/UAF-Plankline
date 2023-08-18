@@ -42,37 +42,18 @@ if __name__ == "__main__":
         exit()
 
     output_dir = os.path.abspath(args.directory)
-    train_dir = config['training']['dataset_dir']
     model_dir = config['training']['model_dir']
     scratch_dir = config['training']['fast_scratch']
     scnn_cmd = config['training']['scnn_cmd']
-    start = config['training']['scnn_cmd']
-    end = config['training']['scnn_cmd']
-    batchsize = config['training']['scnn_cmd']
-    basename = config['training']['scnn_cmd']
+    start = config['training']['start']
+    end = config['training']['end']
+    batchsize = config['training']['batchsize']
+    basename = config['training']['basename']
     vsp = config['training']['validationSetRatio']
     lrd = config['training']['learningRateDecay']
     ilr = config['training']['initialLearningRate']
     permis = int(config['general']['dir_permissions'])
     
-
-    ## Setup scratch for training
-    fast_scratch = fast_scratch + "/train-" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-    fast_data = fast_scratch + "/Data"
-    fast_weights = fast_scratch + "/weights"
-
-    logger.info("Setting up directories.")
-    logger.debug(f"Setting up {fast_scratch}")
-    os.makedirs(fast_scratch, permis, exist_ok = True)
-    os.makedirs(fast_data, permis, exist_ok = True)
-    os.makedirs(fast_weights, permis, exist_ok = True)
-
-    # Copy training set and create subfolders
-    shutil.copy2(train_dir, fast_data)
-
-    if start > 0:
-        model_init = model_dir + "/" + basename + "_" + start
-        shutil.copy2(model_init, fast_weights)
 
     ## Setup logger
     logging.config.fileConfig(config['logging']['config'], defaults={'date':datetime.datetime.now().strftime("%Y%m%d-%H%M%S"),'path':working_dir,'name':'segmentation'})
@@ -83,16 +64,33 @@ if __name__ == "__main__":
     # Print config options to screen (TBK)
     print(f"Configureation file: {args.config}")
 
-    
-    train = f'\"{scnn_cmd}\" -start {start} -end {end} -batchSize {batchsize} -basename {basename} -vsp {vsp} -lrd {lrd} -ilr {ilr} -cD 0'
-    train_call = [scnn_cmd, '-start', start, '-end', end, '-batchSize', batchsize, '-basename', basename, '-vsp', vsp, '-lrd', lrd, 'ilr', ilr, '-cD 0']
-    logger.info("Training call: " + train)
+
+    ## Setup scratch for training
+    fast_scratch = fast_scratch + "/train-" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    fast_data = fast_scratch + "/Data"
+    fast_weights = fast_scratch + "/weights"
+
+    logger.info("Setting up directories.")
+    logger.debug(f"Setting up {fast_scratch}")
+    os.makedirs(fast_scratch, permis, exist_ok = True)
+    #os.makedirs(fast_data, permis, exist_ok = True)
+    #os.makedirs(fast_weights, permis, exist_ok = True)
+
+    # Copy training set, and models
+    shutil.copy2(model_dir, fast_data)
 
     timer_train = time()
-    result = subprocess.run(train_call)
-    logger.info(result.stdout.decode('utf-8'))
-    print(result.stdout.decode('utf-8'))
-    #os.system(train)
+    for i in list(range(start, end+1)):
+        ## Format training call:
+        train = f'\"{scnn_cmd}\" -project {fast_scratch} -start {i} -end {i+1} -batchSize {batchsize} -basename {basename} -vsp {vsp} -lrd {lrd} -ilr {ilr} -cD 0'
+        train_call = [scnn_cmd, '-project', fast_scratch, '-start', i, '-end', i+1, '-batchSize', batchsize, '-basename', basename, '-vsp', vsp, '-lrd', lrd, 'ilr', ilr, '-cD 0']
+        logger.info("Training call: " + train)
+
+        result = subprocess.run(train_call)
+        logger.info(result.stdout.decode('utf-8'))
+        print(result.stdout.decode('utf-8'))
+        #os.system(train)
+    
     timer_train = time() - timer_train
 
     logger.debug(f"Training finished in {timer_train:.3f} s.")

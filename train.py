@@ -42,6 +42,7 @@ if __name__ == "__main__":
         exit()
 
     working_dir = os.path.abspath(args.directory)
+    
     model_dir = config['training']['model_dir']
     fast_scratch = config['training']['fast_scratch']
     scnn_cmd = config['training']['scnn_cmd']
@@ -56,7 +57,7 @@ if __name__ == "__main__":
     
 
     ## Setup logger
-    logging.config.fileConfig(config['logging']['config'], defaults={'date':datetime.datetime.now().strftime("%Y%m%d-%H%M%S"),'path':working_dir,'name':'segmentation'})
+    logging.config.fileConfig(config['logging']['config'], defaults={'date':datetime.datetime.now().strftime("%Y%m%d-%H%M%S"),'path':model_dir,'name':'segmentation'})
     logger = logging.getLogger('sLogger')
 
     logger.info(f"Starting training script {v_string}")

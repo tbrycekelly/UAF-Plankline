@@ -17,13 +17,12 @@ import datetime
 
 if __name__ == "__main__":
 
-    v_string = "V2023.08.16"
+    v_string = "V2023.08.18"
     print(f"Starting Plankline Training Script {v_string}")
     
     # create a parser for command line arguments
     parser = argparse.ArgumentParser(description="")
     parser.add_argument("-c", "--config", required = True, help = "Configuration ini file.")
-    parser.add_argument("-d", "--directory", required = True, help = "Training Directory")
 
     # read in the arguments
     args = parser.parse_args()
@@ -41,8 +40,14 @@ if __name__ == "__main__":
         print(f"No logging:config specified in {args.config}. Aborting!")
         exit()
 
-    working_dir = os.path.abspath(args.directory)
+    ## Setup logger
+    logging.config.fileConfig(config['logging']['config'], defaults={'date':datetime.datetime.now().strftime("%Y%m%d-%H%M%S"),'path':model_dir,'name':'segmentation'})
+    logger = logging.getLogger('sLogger')
 
+    logger.info(f"Starting training script {v_string}")
+
+    # Variables read in from the config file:
+    config_version = config['general']['config_version']
     model_dir = config['training']['model_dir']
     fast_scratch = config['training']['fast_scratch']
     scnn_cmd = config['training']['scnn_cmd']
@@ -55,16 +60,9 @@ if __name__ == "__main__":
     ilr = config['training']['initialLearningRate']
     permis = int(config['general']['dir_permissions'])
     
-
-    ## Setup logger
-    logging.config.fileConfig(config['logging']['config'], defaults={'date':datetime.datetime.now().strftime("%Y%m%d-%H%M%S"),'path':model_dir,'name':'segmentation'})
-    logger = logging.getLogger('sLogger')
-
-    logger.info(f"Starting training script {v_string}")
-
     # Print config options to screen (TBK)
-    print(f"Configureation file: {args.config}")
-
+    print(f"Configuration file: {args.config} (Version {config_version})")
+    print(f"Performing training for {model_dir}")
 
     ## Setup scratch for training
     fast_scratch = fast_scratch + "/train-" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -72,8 +70,8 @@ if __name__ == "__main__":
     fast_weights = fast_scratch + "/weights"
 
     
-    cp_file = working_dir + '/' + str(datetime.datetime.now()) + ' ' + args.config
-    logger.debug(f"Copying ini file to training directory {working_dir}")
+    cp_file = model_dir + '/' + str(datetime.datetime.now()) + ' ' + args.config
+    logger.debug(f"Copying ini file to training directory {model_dir}")
     logger.info(f"Copy config to {cp_file}")
     shutil.copy2(args.config, cp_file)
 
@@ -96,8 +94,15 @@ if __name__ == "__main__":
         logger.info("Training call: " + train)
 
         result = subprocess.run(train_call, stdout = subprocess.PIPE)
-        logger.info(result.stdout.decode('utf-8'))
-        print(result.stdout.decode('utf-8'))
+        result = result.stdout.decode('utf-8')
+        result = result.split('\n')
+
+        if len(result) > 84:
+            print(result[84:])
+            logger.debug(result[84:])
+        else:
+            logger.debug(result)
+            print(result)
     
     timer_train = time() - timer_train
 

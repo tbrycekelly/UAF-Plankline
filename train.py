@@ -70,6 +70,13 @@ if __name__ == "__main__":
     fast_data = fast_scratch + "/Data"
     fast_weights = fast_scratch + "/weights"
 
+    
+    cp_file = working_dir + '/' + str(datetime.datetime.now()) + ' ' + args.config
+    logger.debug(f"Copying ini file to training directory {working_dir}")
+    logger.info(f"Copy config to {cp_file}")
+    shutil.copy2(args.config, cp_file)
+
+
     logger.info("Setting up directories.")
     logger.debug(f"Setting up {fast_scratch}")
     os.makedirs(fast_scratch, permis, exist_ok = True)
@@ -77,7 +84,7 @@ if __name__ == "__main__":
     #os.makedirs(fast_weights, permis, exist_ok = True)
 
     # Copy training set, and models
-    shutil.copy2(model_dir, fast_data)
+    shutil.copytree(model_dir, fast_data)
 
     timer_train = time()
     for i in list(range(start, end+1)):
@@ -95,10 +102,7 @@ if __name__ == "__main__":
 
     logger.debug(f"Training finished in {timer_train:.3f} s.")
     print(f"Finished training in {timer_train:.1f} seconds.")
+    shutil.copytree(fast_weights, model_dir + "/weights")
 
-    cp_file = train_dir + '/' + str(datetime.datetime.now()) + ' ' + args.config
-    logger.debug(f"Copying ini file to training directory {train_dir}")
-    logger.info(f"Copy config to {cp_file}")
-    shutil.copy2(args.config, cp_file)
     logger.debug("Done.")
     

@@ -43,7 +43,7 @@ if __name__ == "__main__":
 
     working_dir = os.path.abspath(args.directory)
     model_dir = config['training']['model_dir']
-    scratch_dir = config['training']['fast_scratch']
+    fast_scratch = config['training']['fast_scratch']
     scnn_cmd = config['training']['scnn_cmd']
     start = config['training']['start']
     end = config['training']['end']

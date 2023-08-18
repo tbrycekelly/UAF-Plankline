@@ -80,7 +80,7 @@ if __name__ == "__main__":
 
     logger.info("Setting up directories.")
     logger.debug(f"Setting up {fast_scratch}")
-    os.makedirs(fast_scratch, permis, exist_ok = True)
+    #os.makedirs(fast_scratch, permis, exist_ok = True)
     #os.makedirs(fast_data, permis, exist_ok = True)
     #os.makedirs(fast_weights, permis, exist_ok = True)
 

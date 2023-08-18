@@ -80,24 +80,24 @@ if __name__ == "__main__":
 
     logger.info("Setting up directories.")
     logger.debug(f"Setting up {fast_scratch}")
-    #os.makedirs(fast_scratch, permis, exist_ok = True)
-    #os.makedirs(fast_data, permis, exist_ok = True)
-    #os.makedirs(fast_weights, permis, exist_ok = True)
-
+    
     # Copy training set, and models
+    time_copy = time()
     shutil.copytree(model_dir, fast_scratch)
+    time_copy = time() - time_copy
+    logger.info(f"Copy to scratch took {time_copy:.3f} s.")
+    print(f"Copy to scratch took {time_copy:.1f} s.")
 
     timer_train = time()
     for i in list(range(int(start), int(stop)+1)):
         ## Format training call:
         train = f'\"{scnn_cmd}\" -project {fast_scratch} -start {i} -stop {i+1} -batchSize {batchsize} -basename {basename} -vsp {vsp} -lrd {lrd} -ilr {ilr} -cD 0'
-        train_call = [scnn_cmd, '-project', fast_scratch, '-start', str(i), '-stop', str(i+1), '-batchSize', batchsize, '-basename', basename, '-vsp', vsp, '-lrd', lrd, 'ilr', ilr, '-cD 0']
+        train_call = [scnn_cmd, '-project', fast_scratch, '-start', str(i), '-stop', str(i+1), '-batchSize', batchsize, '-basename', basename, '-vsp', vsp, '-lrd', lrd, '-ilr', ilr, '-cD 0']
         logger.info("Training call: " + train)
 
-        result = subprocess.run(train_call)
+        result = subprocess.run(train_call, stdout = subprocess.PIPE)
         logger.info(result.stdout.decode('utf-8'))
         print(result.stdout.decode('utf-8'))
-        #os.system(train)
     
     timer_train = time() - timer_train
 

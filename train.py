@@ -98,11 +98,14 @@ if __name__ == "__main__":
 
         result = subprocess.run(train_call, stdout = subprocess.PIPE)
         result = result.stdout.decode('utf-8')
+        with open('model_dir' + '/weights/' + basename + '_epoch-' + str(i) + '.log', 'a') as f:
+            f.write(result)
+
         result = result.split('\n')
 
-        if len(result) > 84:
-            print(result[84:])
-            logger.debug(result[84:])
+        if len(result) > 86:
+            print(result[86:])
+            logger.debug(result[86:])
         else:
             logger.debug(result)
             print(result)
@@ -111,7 +114,11 @@ if __name__ == "__main__":
 
     logger.debug(f"Training finished in {timer_train:.3f} s.")
     print(f"Finished training in {timer_train:.1f} seconds.")
-    shutil.copytree(fast_scratch, model_dir, ignore_errors=True, dirs_exist_ok=True)
+
+    for i in list(range(int(start), int(stop)+1)):
+        logger.debug(f"Copying back model epoch {i} from scratch to {model_dir}.")
+        shutil.copy(fast_weights + '/' + basename + '_epoch-' + str(i) + '.cnn', model_dir + '/weights', )
+
     shutil.rmtree(fast_scratch, ignore_errors=True)
 
     logger.debug("Done.")

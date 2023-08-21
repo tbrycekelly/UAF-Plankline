@@ -98,7 +98,7 @@ if __name__ == "__main__":
 
         result = subprocess.run(train_call, stdout = subprocess.PIPE)
         result = result.stdout.decode('utf-8')
-        with open('model_dir' + '/weights/' + basename + '_epoch-' + str(i) + '.log', 'a') as f:
+        with open(model_dir + '/weights/' + basename + '_epoch-' + str(i) + '.log', 'a') as f:
             f.write(result)
 
         result = result.split('\n')

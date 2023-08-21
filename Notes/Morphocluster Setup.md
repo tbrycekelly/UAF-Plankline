@@ -2,13 +2,16 @@
 
 ## Installation
 
+Generally just follow the outline provided here: [https://github.com/morphocluster/morphocluster]
+
 Install docker if haven't already:
 
-    sudo aptitude install docker-compose
+    sudo aptitude install docker docker-compose npm dos2unix
 
     cd /opt
     git clone https://github.com/tbrycekelly/UAF-Morphocluster.git
-    mkdir -p /media/plankline/Data/Morphocluster
+    mkdir -p /media/plankline/Data/Morphocluster/data
+    mkdir -p /media/plankline/Data/morphocluster/postgres
 
 Add users to the docker group so you can control the docker installations.
 
@@ -22,7 +25,7 @@ Add lines:
     COMPOSE_DOCKER_CLI_BUILD=1
     DOCKER_BUILDKIT=1
 
-Build the container. This step will take a while the first time (will be shorter if you are rebuilding the image later on).
+Save. Ctrl + x  y. Then build the container. This step will take a while the first time (will be shorter if you are rebuilding the image later on).
 
     cd /opt/UAF-Morphocluster/morphocluster
     sudo docker-compose up --build

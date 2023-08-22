@@ -20,8 +20,6 @@ if __name__ == "__main__":
     working_dir = os.path.abspath(args.directory)
 
     if args.f is True:
-        if os.path.isdir(fast_scratch + '/segment/'):
-            shutil.rmtree(fast_scratch + '/segment/', ignore_errors = True)
 
         if os.path.isdir(working_dir + '/segmentation/'):
             shutil.rmtree(working_dir + '/segmentation/', ignore_errors = True)

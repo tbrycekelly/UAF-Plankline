@@ -89,7 +89,7 @@ if __name__ == "__main__":
     print(f"Copy to scratch took {time_copy:.1f} s.")
 
     timer_train = time()
-    for i in list(range(int(start), int(stop)+1)):
+    for i in list(range(int(start), int(stop))):
         ## Format training call:
         train = f'\"{scnn_cmd}\" -project {fast_scratch} -start {i} -stop {i+1} -batchSize {batchsize} -basename {basename} -vsp {vsp} -lrd {lrd} -ilr {ilr} -cD 0'
         train_call = [scnn_cmd, '-project', fast_scratch, '-start', str(i), '-stop', str(i+1), '-batchSize', batchsize, '-basename', basename, '-vsp', vsp, '-lrd', lrd, '-ilr', ilr, '-cD', '0']
@@ -115,7 +115,7 @@ if __name__ == "__main__":
     logger.debug(f"Training finished in {timer_train:.3f} s.")
     print(f"Finished training in {timer_train:.1f} seconds.")
 
-    for i in list(range(int(start), int(stop)+1)):
+    for i in list(range(int(start)+1, int(stop))):
         logger.debug(f"Copying back model epoch {i} from scratch to {model_dir}.")
         shutil.copy(fast_weights + '/' + basename + '_epoch-' + str(i) + '.cnn', model_dir + '/weights', )
 

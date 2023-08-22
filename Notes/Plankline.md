@@ -15,10 +15,36 @@ N.B. This version of plankline was forked and adapted significantly from the [or
 
 ---
 
+# Installation
+
+Please see [Plankline Setup](Plankline Setup.md) for installation instructions.
+
+
+# Segmentation (MSER)
+
+The segmentation algorithm used in the _Plankline_ processing suite is nomally a __Maximally Stable Extremal Region__ approach as implemented in _opencv_, but there are caveats. Depending onthe signal to noise ratio hyperparamter (__SNR__), one of three possible segmentation routines are called. SNR is calculated as follows (imageProcessing.cpp:497).
+
+    float SNR(const cv::Mat& img) {
+        // perform histogram equalization
+        cv::Mat imgHeq;
+        cv::equalizeHist(img, imgHeq);
+
+        // Calculate Signal To Noise Ratio (SNR)
+        cv::Mat imgClean, imgNoise;
+        cv::medianBlur(imgHeq, imgClean, 3);
+        imgNoise = imgHeq - imgClean;
+        double SNR = 20*( cv::log(cv::norm(imgClean,cv::NORM_L2) / cv::norm(imgNoise,cv::NORM_L2)) );
+
+        return SNR;
+
+When the SNR of an image is greater than that provided, then the MSER algorithm is called immediately after flatfielding and preprocessing (with a `3x3` kernel) [[2]](#2). If the SNR is greater than 75% of the hyperparamter value, then the image is flatfielded, proprocessed (with a `17x17` kernel), and then thresholded based on the __threshold__ hyperparameter. A contouring algorithm is then applied to find specific ROIs. Finally, if the image SNR is below 75% of the hyperparamter value, then the image is flatfielded, proprocessed using the same `17x17` kernel and otherwise processed identically to the previous processing (but in a standalone function). 
 
 
 
+# Training
 
+
+# Classification
 
 
 
@@ -26,4 +52,4 @@ N.B. This version of plankline was forked and adapted significantly from the [or
 
 <a id="1">[1]</a> Schmid, Moritz S, Daprano, Dominic, Jacobson, Kyler M, Sullivan, Christopher, Briseño-Avena, Christian, Luo, Jessica Y, & Cowen, Robert K. (2021). A Convolutional Neural Network based high-throughput image classification pipeline - code and documentation to process plankton underwater imagery using local HPC infrastructure and NSF's XSEDE (1.0.0). Zenodo. https://doi.org/10.5281/zenodo.4641158
 
-
+<a id='2'>[2]</a> Preprocessing here entails an erosion and dialation step conducted by _opencv_. The erosion kernel size is `2*size+1` and thus is a `3x3` or `17x17`

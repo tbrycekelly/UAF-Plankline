@@ -152,6 +152,11 @@ if __name__ == "__main__":
     logging.config.fileConfig(config['logging']['config'], defaults={'date':datetime.datetime.now().strftime("%Y%m%d-%H%M%S"),'path':working_dir,'name':'segmentation'})
     logger = logging.getLogger('sLogger')
 
+    cp_file = segment_dir + '/' + str(datetime.datetime.now()) + ' ' + args.config
+    logger.debug(f"Copying ini file to segmentation directory {segment_dir}")
+    logger.info(f"Copy config to {cp_file}")
+    shutil.copy2(args.config, cp_file)
+
     ## Read in config options:
     permis = int(config['general']['dir_permissions'])
     SNR = int(config['segmentation']['signal_to_noise'])
@@ -225,9 +230,5 @@ if __name__ == "__main__":
     logger.debug(f"Deleting temporary directory {fast_scratch}.")
     shutil.rmtree(fast_scratch, ignore_errors=True)
 
-    cp_file = segment_dir + '/' + str(datetime.datetime.now()) + ' ' + args.config
-    logger.debug(f"Copying ini file to segmentation directory {segment_dir}")
-    logger.info(f"Copy config to {cp_file}")
-    shutil.copy2(args.config, cp_file)
     logger.debug("Done.")
     

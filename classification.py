@@ -11,6 +11,7 @@ import subprocess
 import datetime
 from time import time
 from multiprocessing import Pool, Queue
+import psutil
 
 
 #----------------------------------------------------------------------------------------
@@ -24,6 +25,9 @@ def classify(tar_file):
     date = datetime.datetime.now().strftime("%Y-%m-%d")
     basename = config['classification']['basename']
     logger.debug(f"Basename for model run is {basename}.")
+    logger.info(f"Current ram usage (GB): {psutil.virtual_memory()[3]/1000000000:.2f}")
+    logger.info(f"Current cpu usage (%): {psutil.cpu_percent(4):.1f}")
+    
 
     if config['general']['compress_output'] == 'True':
         image_dir = tar_file.replace(".tar.gz", "") # remove extension

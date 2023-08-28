@@ -7,6 +7,7 @@ import logging.config # TBK
 import configparser # TBK: To read config file
 import tqdm # TBK
 from time import time
+import psutil
 
 from multiprocessing import Pool
 import datetime
@@ -56,6 +57,9 @@ def local_main(avi):
     logger.info(f'seg_output: {seg_output}')
     logger.info(f'segment_dir: {segment_dir}')
     logger.info(f'working_dir: {working_dir}')
+    logger.info(f"Current ram usage (GB): {psutil.virtual_memory()[3]/1000000000:.2f}")
+    logger.info(f"Current cpu usage (%): {psutil.cpu_percent(4):.1f}")
+    
 
     logger.debug(f'Starting AVI file: {avi_file}')
 

@@ -8,6 +8,7 @@ import configparser # TBK: To read config file
 import tqdm # TBK
 import subprocess
 from time import time
+import psutil
 
 from multiprocessing import Pool
 import datetime
@@ -87,7 +88,9 @@ if __name__ == "__main__":
     time_copy = time() - time_copy
     logger.info(f"Copy to scratch took {time_copy:.3f} s.")
     print(f"Copy to scratch took {time_copy:.1f} s.")
-
+    logger.info(f"Current ram usage (GB): {psutil.virtual_memory()[3]/1000000000:.2f}")
+    logger.info(f"Current cpu usage (%): {psutil.cpu_percent(4):.1f}")
+    
     timer_train = time()
     for i in list(range(int(start), int(stop))):
         ## Format training call:

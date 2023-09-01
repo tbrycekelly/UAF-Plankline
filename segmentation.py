@@ -23,7 +23,7 @@ def seg_ff(avi, seg_output, SNR, segment_path):
     segment_log = working_dir + '/segmentation/segment_' + str(datetime.datetime.now()) + '.log'
     full_output = config['segmentation']['full_output']
 
-    seg = f'nohup \"{segment_path}\" -i \"{avi}\" -n 1 -o \"{seg_output}\" -s {snr} -e {epsilon} -M {max_area} -m {min_area} -d {delta} {full_output} >> \"{segment_log}\" 2>&1'
+    seg = f'nohup \"{segment_path}\" -i \"{avi}\" -o \"{seg_output}\" -s {snr} -e {epsilon} -M {max_area} -m {min_area} -d {delta} {full_output} >> \"{segment_log}\" 2>&1'
     logger.info("Segmentation call: " + seg)
 
     os.chmod(seg_output, permis)

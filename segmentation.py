@@ -156,8 +156,8 @@ if __name__ == "__main__":
     logging.config.fileConfig(config['logging']['config'], defaults={'date':datetime.datetime.now().strftime("%Y%m%d-%H%M%S"),'path':working_dir,'name':'segmentation'})
     logger = logging.getLogger('sLogger')
 
-    cp_file = segment_dir + '/' + str(datetime.datetime.now()) + ' ' + args.config
-    logger.debug(f"Copying ini file to segmentation directory {segment_dir}")
+    cp_file = working_dir + '/' + str(datetime.datetime.now()) + ' ' + args.config
+    logger.debug(f"Copying ini file to segmentation directory {working_dir}")
     logger.info(f"Copy config to {cp_file}")
     shutil.copy2(args.config, cp_file)
 

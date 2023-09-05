@@ -1,4 +1,32 @@
+#!/usr/bin/env python3
+"""Image Pulling script for UAF-Plankline
 
+Usage:
+    ./pull_all.py -d <project directory>
+
+License:
+    MIT License
+
+    Copyright (c) 2023 Thomas Kelly
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+"""
 
 import os
 import glob
@@ -205,9 +233,12 @@ def build_structure(path_array, taxon_locations):
             shutil.move(img, image_unique)
 
 if __name__ == "__main__":
-
+    """Main entry to pull_all.py"""
+    
+    v_string = "V2023.09.05"
     parser = get_parser() # get command line arguments
     csvs, tars_dir, out_dir, file_dict, min_images, best, probability, different, strict = validate_args(parser) # error check arguments further
+    print(v_string)
     print(file_dict)
 
     f = open(csvs[0])

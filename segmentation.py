@@ -1,3 +1,33 @@
+#!/usr/bin/env python3
+"""Segmentation script for UAF-Plankline
+
+Usage:
+    ./segmentation.py -c <config.ini> -d <project directory>
+
+License:
+    MIT License
+
+    Copyright (c) 2023 Thomas Kelly
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+"""
+
 import os
 import sys
 import shutil
@@ -14,6 +44,7 @@ import datetime
 
 
 def seg_ff(avi, seg_output, SNR, segment_path):
+    """Formats and calls the segmentation executable"""
     snr = str(SNR)
     epsilon = config['segmentation']['overlap']
     delta = config['segmentation']['delta']
@@ -35,13 +66,8 @@ def seg_ff(avi, seg_output, SNR, segment_path):
 
 
 
-#--------------------------------------------------------------------------
-# local_main
-#
-# Pass in the avi file to be segmented, measured, and compressed.
-# Necessary global variables: short_segment_scratch, SNR, fp_measure.
-#
 def local_main(avi):
+    """A single threaded function that takes one avi path."""
     logger.info("Starting local_main.")
 
     # setup all of the local paths for the avi
@@ -69,15 +95,12 @@ def local_main(avi):
     os.makedirs(seg_output, permis, exist_ok=True)
 
     # Segmentation.
-    #   Run the segmentation on the AVI file.
     logger.info('Starting segmentation.')
     timer_seg = time()
     seg_ff(avi, seg_output, SNR, segment_path)
     timer_seg = time() - timer_seg
     logger.debug(f"Segmentation executable took {timer_seg:.3f} s.")
 
-    # Zip the segmentation output.
-    # Create a new archive and use gzip to compress it.
     if config['general']['compress_output'] == 'True':
         logger.info('Start tarring+compressing.')
         tar_name = out_dir + ".tar.gz"
@@ -107,26 +130,25 @@ def local_main(avi):
     shutil.rmtree(avi_segment_scratch) # remove datecode/
     logger.info('End local_main.')
 
-#------------------------------------------------------------------------------
-# Fix Avi Names
-#
+
 def FixAviNames(avis):
-  n = 0
-  for Name in avis:
-    FixedName = Name.replace(' ', '-')
-    if not (FixedName == Name):
-      os.rename(Name, FixedName)
-      avis[n] = FixedName
-    n += 1
+    """ Helper function to remove spaces in names. 
+    TODO: I think this is unnecessary any more.
+    """
+    n = 0
+    for Name in avis:
+        FixedName = Name.replace(' ', '-')
+        if not (FixedName == Name):
+            os.rename(Name, FixedName)
+        avis[n] = FixedName
+        n += 1
+    return avis
 
-  return avis
 
-#------------------------------------------------------------------------------
-# main
-#
 if __name__ == "__main__":
+    """The main entry point and script for segmentation."""
 
-    v_string = "V2023.08.11"
+    v_string = "V2023.09.05"
     print(f"Starting Plankline Segmentation Script {v_string}")
     
     # create a parser for command line arguments

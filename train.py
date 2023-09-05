@@ -1,3 +1,41 @@
+#!/usr/bin/env python3
+"""Training script for UAF-Plankline
+    This is the training script used to facilitate training of new SCNN models.
+    Settings for this script come exclusively from the configuration ini file
+    passed: 
+        
+        e.g. python3 train.py -c config.ini
+    
+    Importantly, teh script copies all data to a temporary scratch directory and 
+    then copies results back onces completed. If there is a failure then no model
+    epochs will be saved. The user is free to grab them from the scratch_dir.
+
+Usage:
+    ./train.py -c <config.ini>
+
+License:
+    MIT License
+
+    Copyright (c) 2023 Thomas Kelly
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+"""
 import os
 import sys
 import shutil
@@ -18,7 +56,7 @@ import datetime
 
 if __name__ == "__main__":
 
-    v_string = "V2023.08.18"
+    v_string = "V2023.09.05"
     print(f"Starting Plankline Training Script {v_string}")
     
     # create a parser for command line arguments

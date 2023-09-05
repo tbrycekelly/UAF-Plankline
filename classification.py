@@ -1,12 +1,42 @@
+#!/usr/bin/env python3
+"""Classification script for UAF-Plankline
+
+Usage:
+    ./classification.py -c <config.ini> -d <project directory>
+
+License:
+    MIT License
+
+    Copyright (c) 2023 Thomas Kelly
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+"""
+
 import os
 import sys
 import shutil
 import argparse
 import glob
-import logging # TBK: logging module
-import configparser # TBK: To read config file
-import logging.config # TBK
-import tqdm # TBK
+import logging
+import configparser
+import logging.config
+import tqdm
 import subprocess
 import datetime
 from time import time
@@ -14,12 +44,9 @@ from multiprocessing import Pool, Queue
 import psutil
 
 
-#----------------------------------------------------------------------------------------
-# classify
-#
-# Global Variables: scnn_directory, classification_dir, epoch, queue
-#
 def classify(tar_file):
+    """Classify images contained within a TAR file."""
+    
     timer_classify = time()
     logger.info("Starting classify")
     date = datetime.datetime.now().strftime("%Y-%m-%d")
@@ -28,7 +55,6 @@ def classify(tar_file):
     logger.info(f"Current ram usage (GB): {psutil.virtual_memory()[3]/1000000000:.2f}")
     logger.info(f"Current cpu usage (%): {psutil.cpu_percent(4):.1f}")
     
-
     if config['general']['compress_output'] == 'True':
         image_dir = tar_file.replace(".tar.gz", "") # remove extension
         tar_identifier = os.path.basename(image_dir)
@@ -109,11 +135,11 @@ def classify(tar_file):
         timer_pre = time() - timer_pre
         logger.debug(f"Preprocessing took {timer_pre:.3f} s.")
 
-#----------------------------------------------------------------------------------------
-# __main__
-#
+
 if __name__ == "__main__":
-    v_string = "V2023.08.11"
+    """Main entry point for classification.py"""
+    
+    v_string = "V2023.09.05"
     print(f"Starting Plankline Classification Script {v_string}")
 
     # create a parser for command line arguments

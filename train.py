@@ -107,10 +107,10 @@ if __name__ == "__main__":
         result = result.split('\n')
 
         if len(result) > 86:
-            print(result[86:])
+            print(*result[86:], sep = '\n')
             logger.debug(result[86:])
         else:
-            logger.debug(result)
+            logger.debug(*result, sep = '\n')
             print(result)
     
     timer_train = time() - timer_train

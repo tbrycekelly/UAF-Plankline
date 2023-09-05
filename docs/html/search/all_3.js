@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['local_5fmain_6',['local_main',['../namespacesegmentation.html#ae1095b4eb15bba2a5289cd64244895e0',1,'segmentation']]]
+  ['fast_5fscratch_6',['fast_scratch',['../namespacetrain.html#a3a7997cd7865aa4fc5f0706aa3249f04',1,'train']]],
+  ['fixavinames_7',['FixAviNames',['../namespacesegmentation.html#a9da45244b61d9c55b211ca042591787f',1,'segmentation']]]
 ];

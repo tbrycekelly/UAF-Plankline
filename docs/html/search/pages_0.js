@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['plankline_20scripts_28',['Plankline Scripts',['../md_readme.html',1,'']]]
+  ['1_2e_20recommended_20installs_32',['1. Recommended Installs',['../md__home_thomas__github__u_a_f__plankline__notes__linux__setup.html',1,'']]]
 ];

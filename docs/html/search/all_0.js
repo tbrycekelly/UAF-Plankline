@@ -1,6 +1,4 @@
 var searchData=
 [
-  ['classification_0',['classification',['../namespaceclassification.html',1,'']]],
-  ['classify_1',['classify',['../namespaceclassification.html#a058b4a55f59dd39b4354f2c7767a442f',1,'classification']]],
-  ['cleanup_2',['cleanup',['../namespacecleanup.html',1,'']]]
+  ['1_2e_20recommended_20installs_0',['1. Recommended Installs',['../md__home_thomas__github__u_a_f__plankline__notes__linux__setup.html',1,'']]]
 ];

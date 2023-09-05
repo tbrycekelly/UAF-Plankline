@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['seg_5fff_10',['seg_ff',['../namespacesegmentation.html#ad33a0fb68e616156cf9cf6fdd13f4a98',1,'segmentation']]],
-  ['segmentation_11',['segmentation',['../namespacesegmentation.html',1,'']]]
+  ['notes_20on_20the_20installation_20and_20use_20of_20morphocluster_20at_20uaf_9',['Notes on the installation and use of morphocluster at UAF',['../md__home_thomas__github__u_a_f__plankline__notes__morphocluster__setup.html',1,'']]]
 ];

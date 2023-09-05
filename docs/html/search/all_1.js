@@ -1,4 +1,6 @@
 var searchData=
 [
-  ['defaults_3',['defaults',['../namespacesegmentation.html#a880fdf7a1ad96c3cea6121258c693d79',1,'segmentation.defaults()'],['../namespacetrain.html#aed51b6b779d7c3e79d72fc2f5511d969',1,'train.defaults()']]]
+  ['classification_1',['classification',['../namespaceclassification.html',1,'']]],
+  ['classify_2',['classify',['../namespaceclassification.html#a058b4a55f59dd39b4354f2c7767a442f',1,'classification']]],
+  ['cleanup_3',['cleanup',['../namespacecleanup.html',1,'']]]
 ];

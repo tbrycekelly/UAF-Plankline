@@ -1,0 +1,180 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="train_8py" kind="file" language="Python">
+    <compoundname>train.py</compoundname>
+    <innernamespace refid="namespacetrain">train</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1" refid="namespacetrain" refkind="compound"><highlight class="comment">#!/usr/bin/env<sp/>python3</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="stringliteral">&quot;&quot;&quot;Training<sp/>script<sp/>for<sp/>UAF-Plankline</highlight></codeline>
+<codeline lineno="3"><highlight class="stringliteral"><sp/><sp/><sp/><sp/>This<sp/>is<sp/>the<sp/>training<sp/>script<sp/>used<sp/>to<sp/>facilitate<sp/>training<sp/>of<sp/>new<sp/>SCNN<sp/>models.</highlight></codeline>
+<codeline lineno="4"><highlight class="stringliteral"><sp/><sp/><sp/><sp/>Settings<sp/>for<sp/>this<sp/>script<sp/>come<sp/>exclusively<sp/>from<sp/>the<sp/>configuration<sp/>ini<sp/>file</highlight></codeline>
+<codeline lineno="5"><highlight class="stringliteral"><sp/><sp/><sp/><sp/>passed:<sp/></highlight></codeline>
+<codeline lineno="6"><highlight class="stringliteral"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="7"><highlight class="stringliteral"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>e.g.<sp/>python3<sp/>train.py<sp/>-c<sp/>config.ini</highlight></codeline>
+<codeline lineno="8"><highlight class="stringliteral"><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="9"><highlight class="stringliteral"><sp/><sp/><sp/><sp/>Importantly,<sp/>teh<sp/>script<sp/>copies<sp/>all<sp/>data<sp/>to<sp/>a<sp/>temporary<sp/>scratch<sp/>directory<sp/>and<sp/></highlight></codeline>
+<codeline lineno="10"><highlight class="stringliteral"><sp/><sp/><sp/><sp/>then<sp/>copies<sp/>results<sp/>back<sp/>onces<sp/>completed.<sp/>If<sp/>there<sp/>is<sp/>a<sp/>failure<sp/>then<sp/>no<sp/>model</highlight></codeline>
+<codeline lineno="11"><highlight class="stringliteral"><sp/><sp/><sp/><sp/>epochs<sp/>will<sp/>be<sp/>saved.<sp/>The<sp/>user<sp/>is<sp/>free<sp/>to<sp/>grab<sp/>them<sp/>from<sp/>the<sp/>scratch_dir.</highlight></codeline>
+<codeline lineno="12"><highlight class="stringliteral"></highlight></codeline>
+<codeline lineno="13"><highlight class="stringliteral">Usage:</highlight></codeline>
+<codeline lineno="14"><highlight class="stringliteral"><sp/><sp/><sp/><sp/>./train.py<sp/>-c<sp/>&lt;config.ini&gt;</highlight></codeline>
+<codeline lineno="15"><highlight class="stringliteral"></highlight></codeline>
+<codeline lineno="16"><highlight class="stringliteral">License:</highlight></codeline>
+<codeline lineno="17"><highlight class="stringliteral"><sp/><sp/><sp/><sp/>MIT<sp/>License</highlight></codeline>
+<codeline lineno="18"><highlight class="stringliteral"></highlight></codeline>
+<codeline lineno="19"><highlight class="stringliteral"><sp/><sp/><sp/><sp/>Copyright<sp/>(c)<sp/>2023<sp/>Thomas<sp/>Kelly</highlight></codeline>
+<codeline lineno="20"><highlight class="stringliteral"></highlight></codeline>
+<codeline lineno="21"><highlight class="stringliteral"><sp/><sp/><sp/><sp/>Permission<sp/>is<sp/>hereby<sp/>granted,<sp/>free<sp/>of<sp/>charge,<sp/>to<sp/>any<sp/>person<sp/>obtaining<sp/>a<sp/>copy</highlight></codeline>
+<codeline lineno="22"><highlight class="stringliteral"><sp/><sp/><sp/><sp/>of<sp/>this<sp/>software<sp/>and<sp/>associated<sp/>documentation<sp/>files<sp/>(the<sp/>&quot;Software&quot;),<sp/>to<sp/>deal</highlight></codeline>
+<codeline lineno="23"><highlight class="stringliteral"><sp/><sp/><sp/><sp/>in<sp/>the<sp/>Software<sp/>without<sp/>restriction,<sp/>including<sp/>without<sp/>limitation<sp/>the<sp/>rights</highlight></codeline>
+<codeline lineno="24"><highlight class="stringliteral"><sp/><sp/><sp/><sp/>to<sp/>use,<sp/>copy,<sp/>modify,<sp/>merge,<sp/>publish,<sp/>distribute,<sp/>sublicense,<sp/>and/or<sp/>sell</highlight></codeline>
+<codeline lineno="25"><highlight class="stringliteral"><sp/><sp/><sp/><sp/>copies<sp/>of<sp/>the<sp/>Software,<sp/>and<sp/>to<sp/>permit<sp/>persons<sp/>to<sp/>whom<sp/>the<sp/>Software<sp/>is</highlight></codeline>
+<codeline lineno="26"><highlight class="stringliteral"><sp/><sp/><sp/><sp/>furnished<sp/>to<sp/>do<sp/>so,<sp/>subject<sp/>to<sp/>the<sp/>following<sp/>conditions:</highlight></codeline>
+<codeline lineno="27"><highlight class="stringliteral"></highlight></codeline>
+<codeline lineno="28"><highlight class="stringliteral"><sp/><sp/><sp/><sp/>The<sp/>above<sp/>copyright<sp/>notice<sp/>and<sp/>this<sp/>permission<sp/>notice<sp/>shall<sp/>be<sp/>included<sp/>in<sp/>all</highlight></codeline>
+<codeline lineno="29"><highlight class="stringliteral"><sp/><sp/><sp/><sp/>copies<sp/>or<sp/>substantial<sp/>portions<sp/>of<sp/>the<sp/>Software.</highlight></codeline>
+<codeline lineno="30"><highlight class="stringliteral"></highlight></codeline>
+<codeline lineno="31"><highlight class="stringliteral"><sp/><sp/><sp/><sp/>THE<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>&quot;AS<sp/>IS&quot;,<sp/>WITHOUT<sp/>WARRANTY<sp/>OF<sp/>ANY<sp/>KIND,<sp/>EXPRESS<sp/>OR</highlight></codeline>
+<codeline lineno="32"><highlight class="stringliteral"><sp/><sp/><sp/><sp/>IMPLIED,<sp/>INCLUDING<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO<sp/>THE<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY,</highlight></codeline>
+<codeline lineno="33"><highlight class="stringliteral"><sp/><sp/><sp/><sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>AND<sp/>NONINFRINGEMENT.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL<sp/>THE</highlight></codeline>
+<codeline lineno="34"><highlight class="stringliteral"><sp/><sp/><sp/><sp/>AUTHORS<sp/>OR<sp/>COPYRIGHT<sp/>HOLDERS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>CLAIM,<sp/>DAMAGES<sp/>OR<sp/>OTHER</highlight></codeline>
+<codeline lineno="35"><highlight class="stringliteral"><sp/><sp/><sp/><sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>AN<sp/>ACTION<sp/>OF<sp/>CONTRACT,<sp/>TORT<sp/>OR<sp/>OTHERWISE,<sp/>ARISING<sp/>FROM,</highlight></codeline>
+<codeline lineno="36"><highlight class="stringliteral"><sp/><sp/><sp/><sp/>OUT<sp/>OF<sp/>OR<sp/>IN<sp/>CONNECTION<sp/>WITH<sp/>THE<sp/>SOFTWARE<sp/>OR<sp/>THE<sp/>USE<sp/>OR<sp/>OTHER<sp/>DEALINGS<sp/>IN<sp/>THE</highlight></codeline>
+<codeline lineno="37"><highlight class="stringliteral"><sp/><sp/><sp/><sp/>SOFTWARE.</highlight></codeline>
+<codeline lineno="38"><highlight class="stringliteral">&quot;&quot;&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="keyword">import</highlight><highlight class="normal"><sp/>os</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="keyword">import</highlight><highlight class="normal"><sp/>sys</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="keyword">import</highlight><highlight class="normal"><sp/>shutil</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="keyword">import</highlight><highlight class="normal"><sp/>argparse</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="keyword">import</highlight><highlight class="normal"><sp/>logging<sp/></highlight><highlight class="comment">#<sp/>TBK:<sp/>logging<sp/>module</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="keyword">import</highlight><highlight class="normal"><sp/>logging.config<sp/></highlight><highlight class="comment">#<sp/>TBK</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="keyword">import</highlight><highlight class="normal"><sp/>configparser<sp/></highlight><highlight class="comment">#<sp/>TBK:<sp/>To<sp/>read<sp/>config<sp/>file</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="keyword">import</highlight><highlight class="normal"><sp/>tqdm<sp/></highlight><highlight class="comment">#<sp/>TBK</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight><highlight class="keyword">import</highlight><highlight class="normal"><sp/>subprocess</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="keyword">from</highlight><highlight class="normal"><sp/>time<sp/></highlight><highlight class="keyword">import</highlight><highlight class="normal"><sp/>time</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight><highlight class="keyword">import</highlight><highlight class="normal"><sp/>psutil</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight><highlight class="keyword">from</highlight><highlight class="normal"><sp/>multiprocessing<sp/></highlight><highlight class="keyword">import</highlight><highlight class="normal"><sp/>Pool</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight><highlight class="keyword">import</highlight><highlight class="normal"><sp/>datetime</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>__name__<sp/>==<sp/></highlight><highlight class="stringliteral">&quot;__main__&quot;</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/>v_string<sp/>=<sp/></highlight><highlight class="stringliteral">&quot;V2023.09.05&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/>print(f</highlight><highlight class="stringliteral">&quot;Starting<sp/>Plankline<sp/>Training<sp/>Script<sp/>{v_string}&quot;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">#<sp/>create<sp/>a<sp/>parser<sp/>for<sp/>command<sp/>line<sp/>arguments</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/>parser<sp/>=<sp/>argparse.ArgumentParser(description=</highlight><highlight class="stringliteral">&quot;&quot;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/>parser.add_argument(</highlight><highlight class="stringliteral">&quot;-c&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="stringliteral">&quot;--config&quot;</highlight><highlight class="normal">,<sp/>required<sp/>=<sp/></highlight><highlight class="keyword">True</highlight><highlight class="normal">,<sp/>help<sp/>=<sp/></highlight><highlight class="stringliteral">&quot;Configuration<sp/>ini<sp/>file.&quot;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">#<sp/>read<sp/>in<sp/>the<sp/>arguments</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/>args<sp/>=<sp/>parser.parse_args()</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>os.path.isfile(args.config)<sp/>==<sp/></highlight><highlight class="keyword">False</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>print(f</highlight><highlight class="stringliteral">&quot;No<sp/>config<sp/>file<sp/>found<sp/>called<sp/>{args.config}.<sp/>Aborting!&quot;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>exit()</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/>config<sp/>=<sp/>configparser.ConfigParser()</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>os.path.exists(</highlight><highlight class="stringliteral">&apos;default.ini&apos;</highlight><highlight class="normal">):</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>config.read(</highlight><highlight class="stringliteral">&apos;default.ini&apos;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/>config.read(args.config)</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>config.has_option(</highlight><highlight class="stringliteral">&apos;logging&apos;</highlight><highlight class="normal">,<sp/></highlight><highlight class="stringliteral">&apos;config&apos;</highlight><highlight class="normal">)<sp/>==<sp/></highlight><highlight class="keyword">False</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>print(f</highlight><highlight class="stringliteral">&quot;No<sp/>logging:config<sp/>specified<sp/>in<sp/>{args.config}.<sp/>Aborting!&quot;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>exit()</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">#<sp/>Variables<sp/>read<sp/>in<sp/>from<sp/>the<sp/>config<sp/>file:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/>config_version<sp/>=<sp/>config[</highlight><highlight class="stringliteral">&apos;general&apos;</highlight><highlight class="normal">][</highlight><highlight class="stringliteral">&apos;config_version&apos;</highlight><highlight class="normal">]</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/>model_dir<sp/>=<sp/>config[</highlight><highlight class="stringliteral">&apos;training&apos;</highlight><highlight class="normal">][</highlight><highlight class="stringliteral">&apos;model_dir&apos;</highlight><highlight class="normal">]</highlight></codeline>
+<codeline lineno="86" refid="namespacetrain_1a3a7997cd7865aa4fc5f0706aa3249f04" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>fast_scratch<sp/>=<sp/>config[</highlight><highlight class="stringliteral">&apos;training&apos;</highlight><highlight class="normal">][</highlight><highlight class="stringliteral">&apos;fast_scratch&apos;</highlight><highlight class="normal">]</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/>scnn_cmd<sp/>=<sp/>config[</highlight><highlight class="stringliteral">&apos;training&apos;</highlight><highlight class="normal">][</highlight><highlight class="stringliteral">&apos;scnn_cmd&apos;</highlight><highlight class="normal">]</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/>start<sp/>=<sp/>config[</highlight><highlight class="stringliteral">&apos;training&apos;</highlight><highlight class="normal">][</highlight><highlight class="stringliteral">&apos;start&apos;</highlight><highlight class="normal">]</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/>stop<sp/>=<sp/>config[</highlight><highlight class="stringliteral">&apos;training&apos;</highlight><highlight class="normal">][</highlight><highlight class="stringliteral">&apos;stop&apos;</highlight><highlight class="normal">]</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/>batchsize<sp/>=<sp/>config[</highlight><highlight class="stringliteral">&apos;training&apos;</highlight><highlight class="normal">][</highlight><highlight class="stringliteral">&apos;batchsize&apos;</highlight><highlight class="normal">]</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/>basename<sp/>=<sp/>config[</highlight><highlight class="stringliteral">&apos;training&apos;</highlight><highlight class="normal">][</highlight><highlight class="stringliteral">&apos;basename&apos;</highlight><highlight class="normal">]</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/>vsp<sp/>=<sp/>config[</highlight><highlight class="stringliteral">&apos;training&apos;</highlight><highlight class="normal">][</highlight><highlight class="stringliteral">&apos;validationSetRatio&apos;</highlight><highlight class="normal">]</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/>lrd<sp/>=<sp/>config[</highlight><highlight class="stringliteral">&apos;training&apos;</highlight><highlight class="normal">][</highlight><highlight class="stringliteral">&apos;learningRateDecay&apos;</highlight><highlight class="normal">]</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/>ilr<sp/>=<sp/>config[</highlight><highlight class="stringliteral">&apos;training&apos;</highlight><highlight class="normal">][</highlight><highlight class="stringliteral">&apos;initialLearningRate&apos;</highlight><highlight class="normal">]</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/>permis<sp/>=<sp/>int(config[</highlight><highlight class="stringliteral">&apos;general&apos;</highlight><highlight class="normal">][</highlight><highlight class="stringliteral">&apos;dir_permissions&apos;</highlight><highlight class="normal">])</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="98" refid="namespacetrain_1aed51b6b779d7c3e79d72fc2f5511d969" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>logging.config.fileConfig(config[</highlight><highlight class="stringliteral">&apos;logging&apos;</highlight><highlight class="normal">][</highlight><highlight class="stringliteral">&apos;config&apos;</highlight><highlight class="normal">],<sp/>defaults={</highlight><highlight class="stringliteral">&apos;date&apos;</highlight><highlight class="normal">:datetime.datetime.now().strftime(</highlight><highlight class="stringliteral">&quot;%Y%m%d-%H%M%S&quot;</highlight><highlight class="normal">),</highlight><highlight class="stringliteral">&apos;path&apos;</highlight><highlight class="normal">:model_dir,</highlight><highlight class="stringliteral">&apos;name&apos;</highlight><highlight class="normal">:</highlight><highlight class="stringliteral">&apos;segmentation&apos;</highlight><highlight class="normal">})</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/>logger<sp/>=<sp/>logging.getLogger(</highlight><highlight class="stringliteral">&apos;sLogger&apos;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/>logger.info(f</highlight><highlight class="stringliteral">&quot;Starting<sp/>training<sp/>script<sp/>{v_string}&quot;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">#<sp/>Print<sp/>config<sp/>options<sp/>to<sp/>screen<sp/>(TBK)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/>print(f</highlight><highlight class="stringliteral">&quot;Configuration<sp/>file:<sp/>{args.config}<sp/>(Version<sp/>{config_version})&quot;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/>print(f</highlight><highlight class="stringliteral">&quot;Performing<sp/>training<sp/>for<sp/>{model_dir}&quot;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/>fast_scratch<sp/>=<sp/>fast_scratch<sp/>+<sp/></highlight><highlight class="stringliteral">&quot;/train-&quot;</highlight><highlight class="normal"><sp/>+<sp/>datetime.datetime.now().strftime(</highlight><highlight class="stringliteral">&quot;%Y%m%d-%H%M%S&quot;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/>fast_data<sp/>=<sp/>fast_scratch<sp/>+<sp/></highlight><highlight class="stringliteral">&quot;/Data&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/>fast_weights<sp/>=<sp/>fast_scratch<sp/>+<sp/></highlight><highlight class="stringliteral">&quot;/weights&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/>cp_file<sp/>=<sp/>model_dir<sp/>+<sp/></highlight><highlight class="stringliteral">&apos;/&apos;</highlight><highlight class="normal"><sp/>+<sp/>str(datetime.datetime.now())<sp/>+<sp/></highlight><highlight class="stringliteral">&apos;<sp/>&apos;</highlight><highlight class="normal"><sp/>+<sp/>args.config</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/>logger.debug(f</highlight><highlight class="stringliteral">&quot;Copying<sp/>ini<sp/>file<sp/>to<sp/>training<sp/>directory<sp/>{model_dir}&quot;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/>logger.info(f</highlight><highlight class="stringliteral">&quot;Copy<sp/>config<sp/>to<sp/>{cp_file}&quot;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/>shutil.copy2(args.config,<sp/>cp_file)</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/>logger.info(</highlight><highlight class="stringliteral">&quot;Setting<sp/>up<sp/>directories.&quot;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/>logger.debug(f</highlight><highlight class="stringliteral">&quot;Setting<sp/>up<sp/>{fast_scratch}&quot;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">#<sp/>Copy<sp/>training<sp/>set,<sp/>and<sp/>models</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/>time_copy<sp/>=<sp/>time()</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/>shutil.copytree(model_dir,<sp/>fast_scratch)</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/>time_copy<sp/>=<sp/>time()<sp/>-<sp/>time_copy</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/>logger.info(f</highlight><highlight class="stringliteral">&quot;Copy<sp/>to<sp/>scratch<sp/>took<sp/>{time_copy:.3f}<sp/>s.&quot;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/>print(f</highlight><highlight class="stringliteral">&quot;Copy<sp/>to<sp/>scratch<sp/>took<sp/>{time_copy:.1f}<sp/>s.&quot;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/>logger.info(f</highlight><highlight class="stringliteral">&quot;Current<sp/>ram<sp/>usage<sp/>(GB):<sp/>{psutil.virtual_memory()[3]/1000000000:.2f}&quot;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/>logger.info(f</highlight><highlight class="stringliteral">&quot;Current<sp/>cpu<sp/>usage<sp/>(%):<sp/>{psutil.cpu_percent(4):.1f}&quot;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/>timer_train<sp/>=<sp/>time()</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>i<sp/></highlight><highlight class="keywordflow">in</highlight><highlight class="normal"><sp/>list(range(int(start),<sp/>int(stop))):</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="135" refid="namespacetrain_1af581b02c512bc0f793c0c772b67c62d0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>train<sp/>=<sp/>f</highlight><highlight class="stringliteral">&apos;\&quot;{scnn_cmd}\&quot;<sp/>-project<sp/>{fast_scratch}<sp/>-start<sp/>{i}<sp/>-stop<sp/>{i+1}<sp/>-batchSize<sp/>{batchsize}<sp/>-basename<sp/>{basename}<sp/>-vsp<sp/>{vsp}<sp/>-lrd<sp/>{lrd}<sp/>-ilr<sp/>{ilr}<sp/>-cD<sp/>0&apos;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>train_call<sp/>=<sp/>[scnn_cmd,<sp/></highlight><highlight class="stringliteral">&apos;-project&apos;</highlight><highlight class="normal">,<sp/>fast_scratch,<sp/></highlight><highlight class="stringliteral">&apos;-start&apos;</highlight><highlight class="normal">,<sp/>str(i),<sp/></highlight><highlight class="stringliteral">&apos;-stop&apos;</highlight><highlight class="normal">,<sp/>str(i+1),<sp/></highlight><highlight class="stringliteral">&apos;-batchSize&apos;</highlight><highlight class="normal">,<sp/>batchsize,<sp/></highlight><highlight class="stringliteral">&apos;-basename&apos;</highlight><highlight class="normal">,<sp/>basename,<sp/></highlight><highlight class="stringliteral">&apos;-vsp&apos;</highlight><highlight class="normal">,<sp/>vsp,<sp/></highlight><highlight class="stringliteral">&apos;-lrd&apos;</highlight><highlight class="normal">,<sp/>lrd,<sp/></highlight><highlight class="stringliteral">&apos;-ilr&apos;</highlight><highlight class="normal">,<sp/>ilr,<sp/></highlight><highlight class="stringliteral">&apos;-cD&apos;</highlight><highlight class="normal">,<sp/></highlight><highlight class="stringliteral">&apos;0&apos;</highlight><highlight class="normal">]</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>logger.info(</highlight><highlight class="stringliteral">&quot;Training<sp/>call:<sp/>&quot;</highlight><highlight class="normal"><sp/>+<sp/>train)</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>print(f</highlight><highlight class="stringliteral">&quot;Starting<sp/>training<sp/>epoch<sp/>{i}.&quot;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/>subprocess.run(train_call,<sp/>stdout<sp/>=<sp/>subprocess.PIPE)</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/>result.stdout.decode(</highlight><highlight class="stringliteral">&apos;utf-8&apos;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">with</highlight><highlight class="normal"><sp/>open(model_dir<sp/>+<sp/></highlight><highlight class="stringliteral">&apos;/weights/&apos;</highlight><highlight class="normal"><sp/>+<sp/>basename<sp/>+<sp/></highlight><highlight class="stringliteral">&apos;_epoch-&apos;</highlight><highlight class="normal"><sp/>+<sp/>str(i)<sp/>+<sp/></highlight><highlight class="stringliteral">&apos;.log&apos;</highlight><highlight class="normal">,<sp/></highlight><highlight class="stringliteral">&apos;a&apos;</highlight><highlight class="normal">)<sp/></highlight><highlight class="keyword">as</highlight><highlight class="normal"><sp/>f:</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>f.write(result)</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/>result.split(</highlight><highlight class="stringliteral">&apos;\n&apos;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"></highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>len(result)<sp/>&gt;<sp/>86:</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>print(*result[86:],<sp/>sep<sp/>=<sp/></highlight><highlight class="stringliteral">&apos;\n&apos;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>logger.debug(result[86:])</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>logger.debug(*result,<sp/>sep<sp/>=<sp/></highlight><highlight class="stringliteral">&apos;\n&apos;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>print(result)</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/>timer_train<sp/>=<sp/>time()<sp/>-<sp/>timer_train</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/>logger.debug(f</highlight><highlight class="stringliteral">&quot;Training<sp/>finished<sp/>in<sp/>{timer_train:.3f}<sp/>s.&quot;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/>print(f</highlight><highlight class="stringliteral">&quot;Finished<sp/>training<sp/>in<sp/>{timer_train:.1f}<sp/>seconds.&quot;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"></highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>i<sp/></highlight><highlight class="keywordflow">in</highlight><highlight class="normal"><sp/>list(range(int(start)+1,<sp/>int(stop))):</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>logger.debug(f</highlight><highlight class="stringliteral">&quot;Copying<sp/>back<sp/>model<sp/>epoch<sp/>{i}<sp/>from<sp/>scratch<sp/>to<sp/>{model_dir}.&quot;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>shutil.copy(fast_weights<sp/>+<sp/></highlight><highlight class="stringliteral">&apos;/&apos;</highlight><highlight class="normal"><sp/>+<sp/>basename<sp/>+<sp/></highlight><highlight class="stringliteral">&apos;_epoch-&apos;</highlight><highlight class="normal"><sp/>+<sp/>str(i)<sp/>+<sp/></highlight><highlight class="stringliteral">&apos;.cnn&apos;</highlight><highlight class="normal">,<sp/>model_dir<sp/>+<sp/></highlight><highlight class="stringliteral">&apos;/weights&apos;</highlight><highlight class="normal">,<sp/>)</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"></highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/>shutil.rmtree(fast_scratch,<sp/>ignore_errors=</highlight><highlight class="keyword">True</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/>logger.debug(</highlight><highlight class="stringliteral">&quot;Done.&quot;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight></codeline>
+    </programlisting>
+    <location file="train.py"/>
+  </compounddef>
+</doxygen>

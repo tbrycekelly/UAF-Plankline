@@ -104,7 +104,12 @@ if __name__ == "__main__":
     # Print config options to screen (TBK)
     print(f"Configuration file: {args.config} (Version {config_version})")
     print(f"Performing training for {model_dir}")
-
+    print(f"Starting Epoch:        {start}")
+    print(f"Stopping Epoch:        {stop}")
+    print(f"Initial Learning Rate: {ilr}")
+    print(f"Learning Rate Decay:   {lrd}")
+    print(f"Validation Ratio:      {vsp}")
+    
     ## Setup scratch for training
     fast_scratch = fast_scratch + "/train-" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     fast_data = fast_scratch + "/Data"
@@ -148,7 +153,7 @@ if __name__ == "__main__":
             print(*result[86:], sep = '\n')
             logger.debug(result[86:])
         else:
-            logger.debug(*result, sep = '\n')
+            logger.debug("\n".join(result))
             print(result)
     
     timer_train = time() - timer_train

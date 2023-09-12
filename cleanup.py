@@ -41,29 +41,35 @@ if __name__ == "__main__":
 
     # create a parser for command line arguments
     parser = argparse.ArgumentParser(description="")
-    parser.add_argument("-d", "--directory", required = True, help = "Input directory containing ./raw/")
+    parser.add_argument("-d", "--directory", required = False, help = "Input directory containing ./raw/")
     parser.add_argument("-f", action = 'store_true')
 
     # read in the arguments
     args = parser.parse_args()
 
     ## Read in config options:
-    working_dir = os.path.abspath(args.directory)
+    if args.directory in None:
+        skip_working = True
+    else:
+        skip_working = False
+    
+    if not skip_working:
+        working_dir = os.path.abspath(args.directory)
     
     seg_tmp = glob.glob('/tmp/segment*')
     class_tmp = glob.glob('/tmp/class*')
     train_tmp = glob.glob('/tmp/train*')
 
     if args.f is True:
+        if not skip_working:
+            if os.path.isdir(working_dir + '/segmentation/'):
+                shutil.rmtree(working_dir + '/segmentation/', ignore_errors = True)
 
-        if os.path.isdir(working_dir + '/segmentation/'):
-            shutil.rmtree(working_dir + '/segmentation/', ignore_errors = True)
+            if os.path.isdir(working_dir + '/classification/'):
+                shutil.rmtree(working_dir + '/classification/', ignore_errors = True)
 
-        if os.path.isdir(working_dir + '/classification/'):
-            shutil.rmtree(working_dir + '/classification/', ignore_errors = True)
-
-        if os.path.isdir(working_dir + '/R/'):
-            shutil.rmtree(working_dir + '/R/', ignore_errors = True)
+            if os.path.isdir(working_dir + '/R/'):
+                shutil.rmtree(working_dir + '/R/', ignore_errors = True)
 
         if len(seg_tmp) > 0:
             for d in seg_tmp:
@@ -91,20 +97,21 @@ if __name__ == "__main__":
 
         print("No -f flag provided. Rerun with -f flag if you want to delete the following directories:")
         
-        if os.path.isdir(working_dir + '/segmentation/'):
-            print(f"Directory: {working_dir + '/segmentation/':30} containing {(get_size(working_dir + '/segmentation/')/10**9):.1f} GB")
-        else:
-            print(f"Directory: {working_dir + '/segmentation/':30} not found.")
-        
-        if os.path.isdir(working_dir + '/classification/'):
-            print(f"Directory: {working_dir + '/classification/':30} containing {(get_size(working_dir + '/classification/')/10**9):.1f} GB")
-        else:
-            print(f"Directory: {working_dir + '/classification/':30} not found.")
-        
-        if os.path.isdir(working_dir + '/R/'):
-            print(f"Directory: {working_dir + '/R/':30} containing {(get_size(working_dir + '/R/')/10**9):.1f} GB")
-        else:
-            print(f"Directory: {working_dir + '/R/':30} not found.")
+        if not skip_working:
+            if os.path.isdir(working_dir + '/segmentation/'):
+                print(f"Directory: {working_dir + '/segmentation/':30} containing {(get_size(working_dir + '/segmentation/')/10**9):.1f} GB")
+            else:
+                print(f"Directory: {working_dir + '/segmentation/':30} not found.")
+            
+            if os.path.isdir(working_dir + '/classification/'):
+                print(f"Directory: {working_dir + '/classification/':30} containing {(get_size(working_dir + '/classification/')/10**9):.1f} GB")
+            else:
+                print(f"Directory: {working_dir + '/classification/':30} not found.")
+            
+            if os.path.isdir(working_dir + '/R/'):
+                print(f"Directory: {working_dir + '/R/':30} containing {(get_size(working_dir + '/R/')/10**9):.1f} GB")
+            else:
+                print(f"Directory: {working_dir + '/R/':30} not found.")
         
         if len(seg_tmp) > 0:
             for d in seg_tmp:

@@ -33,10 +33,11 @@ import sys
 import shutil
 import argparse
 import configparser # TBK: To read config file
+import glob
 
 if __name__ == "__main__":
     """Main entry point for cleanup.py"""
-    v_string = "V2023.02.02"
+    v_string = "V2023.09s.05"
 
     # create a parser for command line arguments
     parser = argparse.ArgumentParser(description="")
@@ -48,6 +49,10 @@ if __name__ == "__main__":
 
     ## Read in config options:
     working_dir = os.path.abspath(args.directory)
+    
+    seg_tmp = glob.glob('/tmp/segment*')
+    class_tmp = glob.glob('/tmp/class*')
+    train_tmp = glob.glob('/tmp/train*')
 
     if args.f is True:
 
@@ -59,6 +64,19 @@ if __name__ == "__main__":
 
         if os.path.isdir(working_dir + '/R/'):
             shutil.rmtree(working_dir + '/R/', ignore_errors = True)
+
+        if len(seg_tmp) > 0:
+            for d in seg_tmp:
+                shutil.rmtree(d, ignore_errors = True)
+        
+        if len(class_tmp) > 0:
+            for d in class_tmp:
+                shutil.rmtree(d, ignore_errors = True)
+                
+        if len(train_tmp) > 0:
+            for d in train_tmp:
+                shutil.rmtree(d, ignore_errors = True)
+                
     else:
         def get_size(start_path = '.'):
             total_size = 0
@@ -88,5 +106,16 @@ if __name__ == "__main__":
         else:
             print(f"Directory: {working_dir + '/R/':30} not found.")
         
+        if len(seg_tmp) > 0:
+            for d in seg_tmp:
+                print(f"Directory: {d:30} containing {(get_size(d)/10**9):.1f} GB")
+        
+        if len(class_tmp) > 0:
+            for d in class_tmp:
+                print(f"Directory: {d:30} containing {(get_size(d)/10**9):.1f} GB")
+                
+        if len(train_tmp) > 0:
+            for d in train_tmp:
+                print(f"Directory: {d:30} containing {(get_size(d)/10**9):.1f} GB")
 
     print('Done.')

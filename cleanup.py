@@ -48,7 +48,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     ## Read in config options:
-    if args.directory in None:
+    if args.directory is None:
         skip_working = True
     else:
         skip_working = False

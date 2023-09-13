@@ -47,16 +47,14 @@ import tqdm # TBK
 import subprocess
 from time import time
 import psutil
-
 from multiprocessing import Pool
 import datetime
 
 
 
-
 if __name__ == "__main__":
 
-    v_string = "V2023.09.12"
+    v_string = "V2023.09.13"
     print(f"Starting Plankline Training Script {v_string}")
     
     # create a parser for command line arguments
@@ -83,7 +81,6 @@ if __name__ == "__main__":
     # Variables read in from the config file:
     config_version = config['general']['config_version']
     model_dir = config['training']['model_dir']
-    fast_scratch = config['training']['fast_scratch']
     scnn_cmd = config['training']['scnn_cmd']
     start = config['training']['start']
     stop = config['training']['stop']
@@ -110,35 +107,21 @@ if __name__ == "__main__":
     print(f"Learning Rate Decay:   {lrd}")
     print(f"Validation Ratio:      {vsp}")
     
-    ## Setup scratch for training
-    fast_scratch = fast_scratch + "/train-" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-    fast_data = fast_scratch + "/Data"
-    fast_weights = fast_scratch + "/weights"
-
-    
     cp_file = model_dir + '/' + str(datetime.datetime.now()) + ' ' + args.config
     logger.debug(f"Copying ini file to training directory {model_dir}")
     logger.info(f"Copy config to {cp_file}")
     shutil.copy2(args.config, cp_file)
 
-
     logger.info("Setting up directories.")
-    logger.debug(f"Setting up {fast_scratch}")
-
-    # Copy training set, and models
-    time_copy = time()
-    shutil.copytree(model_dir, fast_scratch)
-    time_copy = time() - time_copy
-    logger.info(f"Copy to scratch took {time_copy:.3f} s.")
-    print(f"Copy to scratch took {time_copy:.1f} s.")
-    logger.info(f"Current ram usage (GB): {psutil.virtual_memory()[3]/1000000000:.2f}")
-    logger.info(f"Current cpu usage (%): {psutil.cpu_percent(4):.1f}")
     
     timer_train = time()
     for i in list(range(int(start), int(stop)+1)):
+        logger.info(f"Current ram usage (GB): {psutil.virtual_memory()[3]/1000000000:.2f}")
+        logger.info(f"Current cpu usage (%): {psutil.cpu_percent(4):.1f}")
+    
         ## Format training call:
-        train = f'\"{scnn_cmd}\" -project {fast_scratch} -start {i} -stop {i+1} -batchSize {batchsize} -basename {basename} -vsp {vsp} -lrd {lrd} -ilr {ilr} -cD 0'
-        train_call = [scnn_cmd, '-project', fast_scratch, '-start', str(i), '-stop', str(i+1), '-batchSize', batchsize, '-basename', basename, '-vsp', vsp, '-lrd', lrd, '-ilr', ilr, '-cD', '0']
+        train = f'\"{scnn_cmd}\" -project {model_dir} -start {i} -stop {i+1} -batchSize {batchsize} -basename {basename} -vsp {vsp} -lrd {lrd} -ilr {ilr} -cD 0'
+        train_call = [scnn_cmd, '-project', model_dir, '-start', str(i), '-stop', str(i+1), '-batchSize', batchsize, '-basename', basename, '-vsp', vsp, '-lrd', lrd, '-ilr', ilr, '-cD', '0']
         logger.info("Training call: " + train)
         print(f"Starting training epoch {i}.")
 
@@ -150,8 +133,8 @@ if __name__ == "__main__":
         result = result.split('\n')
 
         if len(result) > 75:
-            print(*result[76:], sep = '\n')
-            logger.debug(result[76:])
+            print(*result[76:(len(result)-1)], sep = '\n')
+            logger.debug(result[76:(len(result)-1)])
         else:
             logger.debug(result)
             print(result)
@@ -160,12 +143,6 @@ if __name__ == "__main__":
 
     logger.debug(f"Training finished in {timer_train:.3f} s.")
     print(f"Finished training in {timer_train:.1f} seconds.")
-
-    for i in list(range(int(start)+1, int(stop)+1)):
-        logger.debug(f"Copying back model epoch {i} from scratch to {model_dir}.")
-        shutil.copy(fast_weights + '/' + basename + '_epoch-' + str(i) + '.cnn', model_dir + '/weights', )
-
-    shutil.rmtree(fast_scratch, ignore_errors=True)
 
     logger.debug("Done.")
     

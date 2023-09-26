@@ -104,7 +104,7 @@ def local_main(avi):
     if config['general']['compress_output'] == 'True':
         logger.info('Start tarring+compressing.')
         tar_name = out_dir + ".tar.gz"
-        tar = f'tar czf \"{tar_name}\" -C \"{seg_output}\" .'
+        tar = f'tar czf \"{tar_name}\" -C \"{seg_output}\"'
         logger.debug(tar)
         
         timer_tar = time()
@@ -116,7 +116,7 @@ def local_main(avi):
     else:
         logger.info('Start tarring')
         tar_name = out_dir + ".tar"
-        tar = f'tar cf \"{tar_name}\" -C \"{seg_output}\" .'
+        tar = f'tar cf \"{tar_name}\" -C \"{seg_output}\"'
         logger.debug(tar)
 
         timer_tar = time()
@@ -129,20 +129,6 @@ def local_main(avi):
     shutil.rmtree(seg_output)          # remove datecode_s/
     shutil.rmtree(avi_segment_scratch) # remove datecode/
     logger.info('End local_main.')
-
-
-def FixAviNames(avis):
-    """ Helper function to remove spaces in names. 
-    TODO: I think this is unnecessary any more.
-    """
-    n = 0
-    for Name in avis:
-        FixedName = Name.replace(' ', '-')
-        if not (FixedName == Name):
-            os.rename(Name, FixedName)
-        avis[n] = FixedName
-        n += 1
-    return avis
 
 
 if __name__ == "__main__":
@@ -228,7 +214,6 @@ if __name__ == "__main__":
     avis = []
     logger.info("Looking at avi filepaths.")
     avis = [os.path.join(raw_dir, avi) for avi in os.listdir(raw_dir) if avi.endswith(".avi")]
-    #avis = FixAviNames(avis)
 
     logger.debug("Found {length} AVI files.".format(length = len(avis)))
     print("Found {length} AVI files.".format(length = len(avis)))

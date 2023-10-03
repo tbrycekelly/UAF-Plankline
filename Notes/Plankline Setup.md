@@ -60,16 +60,32 @@ Test it and copy it to final directory (if it works):
     cp ./wp2 ../scnn
 
 ### 2.1 Training a Neural Network
-Copy the training dataset into /opt/UAF-SCNN/Data/plankton/train so that images are in subfolders by category, e.g.: /opt/UAF-SCNN/Data/plankton/train/detritus/iamge.jpg
 
-Run classList.sh
+When setting up a training library of curated images, we recommend to aim for more than ~500 images per category yielding. This will yield >100 validation images when training is performed with a 20% calidation data set.
 
-    cd /opt/UAF-SCNN/Data/plankton
-    ./classList.sh
+**Overview of Traing Steps**
+1. Place training set into /media/plankline/Data/Training folder
+    - In particular, the folder structure of this training set includes the ./Data (location of classified images) and ./weights (initially empty) subdirectories.
 
-You may wish to change the minimum sample size required for a taxa to be included by modifying the _minN_ value within classList.sh. Taxa folders with fewer than _minN_ images will not be included in the training.
+TODO: Check if /weights/ folder is created automatically. 
+TODO: Make the folder names not be uppercase
 
-_TODO: Complete this section_
+2. SSH into Plankline, then navigate to /media/plankline/Data/Training
+3. Run `./classList.sh` and give it the name of the path to the training images. This will print off the number of images per each subfolder. It will also write this information to _classList_, a text file in `./<trainingset>/Data`. An example call will look like:
+
+    ./classList.sh ./training_set_20231002/Data
+
+    
+4. Navigate to the UAF-Plankline script folder, for example: `cd /media/plankline/Data/Scripts/UAF-Plankline`
+5. Edit _default.ini_ as needed, specifically the **training** section. We recommended running the training script for a couple epochs (1-2) first, to make sure it works, then run for a larger number. So for example `start = 0` and `end = 1` within _default.ini_.
+6. We can run train.py:
+
+    python3 ./train.py -c default.ini
+
+
+__NB:__ If the command line is disconnected, then the thread will stop, so we recommend using the command `screen` to allow for easy detaching and reataching of command sessions. To use, run `screen` in your current terminal window. This will spawn a new virtual session that you can later detach. Run any/all commands you would like, for example the above _training.py_ call. To allow the process to continue even if your local computer disconnects from the server, press `Ctrl+a` then `d` to detach. You can now exit or close the window and the current session will persist in the background on the server.
+
+To later reatach the session, simply run `screen -r`. If there are multiple screen sessions available then you can reatch a sepcific one with `screen -r PID` where _PID_ is the process ID shown on screen. To close (i.e. terminate) a screen session, either reattach the session then `Ctrl+a` then `\` or from outside screen run `killall -i screen` to termiante the processes directly.
 
 
 

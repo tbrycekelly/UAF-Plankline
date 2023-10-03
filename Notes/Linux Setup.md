@@ -136,11 +136,13 @@ __Setup Automounting:__ On Ubuntu, automounting is configured by the fstab file 
     lsblk
     sudo nano /etc/fstab
 
-"/dev/sdX	/media/plankline/Data	ext4	defaults,rw,user	0	0"
+"/dev/sdX	/media/plankline/Data	ext4	rw,acl	0	0"
 
     mkdir -p /media/plankline/data
     sudo chmod -R 777 /media/plankline
     sudo mount -a
+
+    sudo setfacl -PRdm u::rwx,g::rw,o::rw /media/plankline
 
 
 __Set swapiness:__ This is a minor performance tweak to diswade the computer from ever trying to use hard drive swap space over system memory. These computer generally have plenty of memory and have no need for offloading to physical media.
@@ -174,7 +176,8 @@ To allow connections on particular ports (e.g. 80 for *Shiny* and 19999 for *net
     sudo ufw allow 19999	
     sudo ufw allow 9993
     sudo ufw allow http
-    sudo ufw limit ssh
+    sudo ufw allow ssh
+    sudo ufw allow 22/tcp
     sudo ufw allow "CUPS"
     sudo ufw allow "Samba"
     sudo ufw allow 4000/tcp

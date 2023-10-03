@@ -73,6 +73,8 @@ def classify(tar_file):
     logger.info(f'image_dir: {image_dir}')
     logger.info(f'tar_identifier: {tar_identifier}')
 
+    os.makedirs(image_dir, permis, exist_ok = True)
+    
     # Untar files
     if config['general']['compress_output'] == 'True':
         untar_cmd = f'tar -xzf "{tar_file}" -C "{image_dir}" --strip-components=4 --wildcards "*.png"  >> "{log_file}" 2>&1' # TBK change strip-components to what you need.

@@ -165,8 +165,13 @@ if __name__ == "__main__":
     
     ## Determine directories
     raw_dir = os.path.abspath(args.directory) # /media/plankline/Data/raw/Camera1/Transect1
-    working_dir = raw_dir.replace("raw", "analysis/segmentation") # /media/plankline/Data/analysis/Camera1/Transect1
-    segment_dir = working_dir + f" ({basename})" # /media/plankline/Data/analysis/segmentation/Camera1/Transect1 (reg)
+    working_dir = raw_dir.replace("raw", "analysis") # /media/plankline/Data/analysis/Camera1/Transect1
+    working_dir = raw_dir.replace("Camera0/", "Camera0/segmentation/") # /media/plankline/Data/analysis/Camera1/Transect1
+    working_dir = raw_dir.replace("Camera1/", "Camera1/segmentation/") # /media/plankline/Data/analysis/Camera1/segmentation/Transect1
+    working_dir = raw_dir.replace("Camera2/", "Camera2/segmentation/") # /media/plankline/Data/analysis/Camera1/segmentation/Transect1
+    working_dir = raw_dir.replace("Camera3/", "Camera3/segmentation/") # /media/plankline/Data/analysis/Camera1/segmentation/Transect1
+    
+    segment_dir = working_dir + f" ({basename})" # /media/plankline/Data/analysis/segmentation/Camera1/segmentation/Transect1 (reg)
     fast_scratch = fast_scratch + "/segment-" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 
     os.makedirs(segment_dir, permis, exist_ok = True)

@@ -51,7 +51,7 @@ def seg_ff(avi, seg_output, SNR, segment_path):
     max_area = config['segmentation']['max_area']
     min_area = config['segmentation']['min_area']
 
-    segment_log = working_dir + '/segmentation/segment_' + str(datetime.datetime.now()) + '.log'
+    segment_log = segment_dir + '/segment_' + str(datetime.datetime.now()) + '.log'
     full_output = config['segmentation']['full_output']
 
     seg = f'nohup \"{segment_path}\" -i \"{avi}\" -o \"{seg_output}\" -s {snr} -e {epsilon} -M {max_area} -m {min_area} -d {delta} {full_output} >> \"{segment_log}\" 2>&1'
@@ -82,7 +82,6 @@ def local_main(avi):
     logger.info(f'avi_segment_scratch: {avi_segment_scratch}')
     logger.info(f'seg_output: {seg_output}')
     logger.info(f'segment_dir: {segment_dir}')
-    logger.info(f'working_dir: {working_dir}')
     logger.info(f"Current ram usage (GB): {psutil.virtual_memory()[3]/1000000000:.2f}")
     logger.info(f"Current cpu usage (%): {psutil.cpu_percent(4):.1f}")
     

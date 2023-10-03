@@ -166,7 +166,7 @@ if __name__ == "__main__":
     os.makedirs(classification_dir, permis, exist_ok = True)
     os.makedirs(fast_scratch, permis, exist_ok = True)
     
-    logging.config.fileConfig(config['logging']['config'], defaults={'date':datetime.datetime.now().strftime("%Y%m%d-%H%M%S"),'path':working_dir,'name':'classification'}) # TBK
+    logging.config.fileConfig(config['logging']['config'], defaults={'date':datetime.datetime.now().strftime("%Y%m%d-%H%M%S"),'path':classification_dir,'name':'classification'}) # TBK
     logger = logging.getLogger('sLogger')
 
     # Print config options to screen (TBK)

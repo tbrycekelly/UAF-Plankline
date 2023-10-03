@@ -166,10 +166,12 @@ if __name__ == "__main__":
     
     ## Determine directories
     raw_dir = os.path.abspath(args.directory) # /media/plankline/Data/raw/Camera1/Transect1
-    working_dir = raw_dir.replace("raw", "analysis") # /media/plankline/Data/analysis/Camera1/Transect1
-    segment_dir = working_dir + f" ({basename})" # /media/plankline/Data/analysis/Camera1/Transect1 (reg)
+    working_dir = raw_dir.replace("raw", "analysis/segmentation") # /media/plankline/Data/analysis/Camera1/Transect1
+    segment_dir = working_dir + f" ({basename})" # /media/plankline/Data/analysis/segmentation/Camera1/Transect1 (reg)
     fast_scratch = fast_scratch + "/segment-" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 
+    os.makedirs(segment_dir, permis, exist_ok = True)
+    os.makedirs(fast_scratch, permis, exist_ok = True)
 
     ## Setup logger
     logging.config.fileConfig(config['logging']['config'], defaults={'date':datetime.datetime.now().strftime("%Y%m%d-%H%M%S"),'path':segment_dir,'name':'segmentation'})
@@ -205,10 +207,6 @@ if __name__ == "__main__":
         logger.error(f"Cannot write to temporary directory {fast_scratch}!")
         exit()
 
-    logger.info("Setting up directories.")
-    logger.debug(f"Setting up {segment_dir} and {fast_scratch}")
-    os.makedirs(segment_dir, permis, exist_ok = True)
-    os.makedirs(fast_scratch, permis, exist_ok = True)
 
     logger.info("Starting AVI loop.")
 

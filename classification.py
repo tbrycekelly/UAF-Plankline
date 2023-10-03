@@ -163,6 +163,9 @@ if __name__ == "__main__":
     classification_dir = segmentation_dir.replace(')', f' {basename}')  # /media/plankline/Data/analysis/segmentation/Camera1/Transect1 (reg plankton)
     fast_scratch = fast_scratch + "/classify-" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     
+    os.makedirs(classification_dir, permis, exist_ok = True)
+    os.makedirs(fast_scratch, permis, exist_ok = True)
+    
     logging.config.fileConfig(config['logging']['config'], defaults={'date':datetime.datetime.now().strftime("%Y%m%d-%H%M%S"),'path':working_dir,'name':'classification'}) # TBK
     logger = logging.getLogger('sLogger')
 
@@ -182,11 +185,6 @@ if __name__ == "__main__":
     if os.access(fast_scratch, os.W_OK) == False:
         logger.error(f"Cannot write to temporary directory {fast_scratch}!")
         exit()
-
-    # segmentation_dir is where the input data is taken from
-    
-    os.makedirs(classification_dir, permis, exist_ok = True)
-    os.makedirs(fast_scratch, permis, exist_ok = True)
 
     # make sure this is a valid directory
     if not os.path.exists(segmentation_dir):

@@ -160,7 +160,7 @@ if __name__ == "__main__":
 
     segmentation_dir = os.path.abspath(args.directory)  # /media/plankline/Data/analysis/segmentation/Camera1/Transect1 (reg)
     classification_dir = segmentation_dir.replace('segmentation', 'classification')  # /media/plankline/Data/analysis/segmentation/Camera1/Transect1 (reg)
-    classification_dir = segmentation_dir.replace(')', f' {basename}')  # /media/plankline/Data/analysis/segmentation/Camera1/Transect1 (reg plankton)
+    classification_dir = segmentation_dir.replace(')', f'-{basename})')  # /media/plankline/Data/analysis/segmentation/Camera1/Transect1 (reg plankton)
     fast_scratch = fast_scratch + "/classify-" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     
     os.makedirs(classification_dir, permis, exist_ok = True)

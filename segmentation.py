@@ -171,7 +171,7 @@ if __name__ == "__main__":
     working_dir = working_dir.replace("Camera2/", "Camera2/segmentation/") # /media/plankline/Data/analysis/Camera1/segmentation/Transect1
     working_dir = working_dir.replace("Camera3/", "Camera3/segmentation/") # /media/plankline/Data/analysis/Camera1/segmentation/Transect1
     
-    segment_dir = working_dir + f" ({basename})" # /media/plankline/Data/analysis/segmentation/Camera1/segmentation/Transect1 (reg)
+    segment_dir = working_dir + f"({basename})" # /media/plankline/Data/analysis/segmentation/Camera1/segmentation/Transect1(reg)
     fast_scratch = fast_scratch + "/segment-" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 
     os.makedirs(segment_dir, permis, exist_ok = True)

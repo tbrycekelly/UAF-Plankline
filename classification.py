@@ -180,6 +180,10 @@ if __name__ == "__main__":
     if os.access(segmentation_dir, os.W_OK) == False:
         logger.error(f"Cannot write to project directory {segmentation_dir}!")
         exit()
+        
+    if os.access(scnn_directory, os.W_OK) == False:
+        logger.error(f"Cannot write to model directory {scnn_directory}!")
+        exit()
 
     if os.access(fast_scratch, os.W_OK) == False:
         logger.error(f"Cannot write to temporary directory {fast_scratch}!")

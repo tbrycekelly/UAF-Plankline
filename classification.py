@@ -87,7 +87,7 @@ def classify(tar_file):
     logger.debug(f"Untarring files took {timer_untar:.3f} s.")
 
     # Perform classification.
-    scnn_cmd  = f"cd '{scnn_directory}'; nohup '{scnn_command}' -start {epoch} -stop {epoch} -unl '{image_dir}' -cD {gpu_id} -basename {basename} >> '{log_file}' 2>&1"
+    scnn_cmd  = f"cd '{scnn_directory}'; nohup scnn -start {epoch} -stop {epoch} -unl '{image_dir}' -cD {gpu_id} -basename {basename} >> '{log_file}' 2>&1"
     logger.debug('Running SCNN: ' + scnn_cmd)
     logger.info('Start SCNN.')
 
@@ -193,6 +193,14 @@ if __name__ == "__main__":
     if not os.path.exists(segmentation_dir):
         logger.error(f"Segmentation directory {segmentation_dir} does not exist (and it should)!")
         exit()
+        
+    cp_file = classification_dir + '/' + str(datetime.datetime.now()) + ' ' + args.config
+    logger.debug(f"Copying ini file to classification directory {classification_dir}")
+    logger.info(f"Copy of log file in {cp_file}")
+    shutil.copy2(args.config, cp_file)
+    logger.debug("Done.")
+    
+    shutil.copy2(scnn_command, scnn_directory + '/scnn')
 
     if config['general']['compress_output'] == 'True':
         tars = [os.path.join(segmentation_dir, tar) for tar in os.listdir(segmentation_dir) if tar.endswith(".tar.gz")]
@@ -235,8 +243,4 @@ if __name__ == "__main__":
     logger.debug(f"Deleting temporary directory {fast_scratch}.")
     shutil.rmtree(fast_scratch, ignore_errors=True)
 
-    cp_file = classification_dir + '/' + str(datetime.datetime.now()) + ' ' + args.config
-    logger.debug(f"Copying ini file to classification directory {classification_dir}")
-    logger.info(f"Copy of log file in {cp_file}")
-    shutil.copy2(args.config, cp_file)
-    logger.debug("Done.")
+

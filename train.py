@@ -107,7 +107,7 @@ if __name__ == "__main__":
     print(f"Learning Rate Decay:   {lrd}")
     print(f"Validation Ratio:      {vsp}")
     
-    cp_file = model_dir + '/' + str(datetime.datetime.now()) + ' ' + args.config
+    cp_file = model_dir + '/' + str(datetime.datetime.now().strftime("%Y%m%d-%H%M%S")) + ' ' + args.config
     logger.debug(f"Copying ini file to training directory {model_dir}")
     logger.info(f"Copy config to {cp_file}")
     shutil.copy2(args.config, cp_file)

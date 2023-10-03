@@ -134,7 +134,7 @@ def local_main(avi):
 if __name__ == "__main__":
     """The main entry point and script for segmentation."""
 
-    v_string = "V2023.09.05"
+    v_string = "V2023.10.03"
     print(f"Starting Plankline Segmentation Script {v_string}")
     
     # create a parser for command line arguments
@@ -150,31 +150,36 @@ if __name__ == "__main__":
         exit()
 
     config = configparser.ConfigParser()
-    if os.path.exists('default.ini'):
-        config.read('default.ini')
     config.read(args.config)
 
     if config.has_option('logging', 'config') == False:
         print(f"No logging:config specified in {args.config}. Aborting!")
         exit()
 
-    working_dir = os.path.abspath(args.directory)
-
-    ## Setup logger
-    logging.config.fileConfig(config['logging']['config'], defaults={'date':datetime.datetime.now().strftime("%Y%m%d-%H%M%S"),'path':working_dir,'name':'segmentation'})
-    logger = logging.getLogger('sLogger')
-
-    cp_file = working_dir + '/' + str(datetime.datetime.now()) + ' ' + args.config
-    logger.debug(f"Copying ini file to segmentation directory {working_dir}")
-    logger.info(f"Copy config to {cp_file}")
-    shutil.copy2(args.config, cp_file)
-
     ## Read in config options:
+    basename = config['segmentation']['segment_basename']
     permis = int(config['general']['dir_permissions'])
     SNR = int(config['segmentation']['signal_to_noise'])
     num_processes = int(config['segmentation']['segment_processes'])
     segment_path = config['segmentation']['segment'] # TBK: Absolute path to segmentation executable.
     fast_scratch = config['segmentation']['fast_scratch'] # TBK: Fastest IO option for temporary files.
+    
+    ## Determine directories
+    raw_dir = os.path.abspath(args.directory) # /media/plankline/Data/raw/Camera1/Transect1
+    working_dir = raw_dir.replace("raw", "analysis") # /media/plankline/Data/analysis/Camera1/Transect1
+    segment_dir = working_dir + f" ({basename})" # /media/plankline/Data/analysis/Camera1/Transect1 (reg)
+    fast_scratch = fast_scratch + "/segment-" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+
+
+    ## Setup logger
+    logging.config.fileConfig(config['logging']['config'], defaults={'date':datetime.datetime.now().strftime("%Y%m%d-%H%M%S"),'path':segment_dir,'name':'segmentation'})
+    logger = logging.getLogger('sLogger')
+
+    cp_file = segment_dir + '/' + str(datetime.datetime.now().strftime("%Y%m%d-%H%M%S")) + ' ' + args.config
+    logger.debug(f"Copying ini file to segmentation directory {segment_dir}")
+    logger.info(f"Copy config to {cp_file}")
+    shutil.copy2(args.config, cp_file)
+
 
     logger.info(f"Starting plankline segmentation {v_string}")
     logger.debug(f"Segmentation on: {working_dir}")
@@ -183,7 +188,8 @@ if __name__ == "__main__":
 
     # Print config options to screen (TBK)
     print(f"Configureation file: {args.config}")
-    print(f"Segmentation on: {working_dir}")
+    print(f"Segmentation basename: {basename}")
+    print(f"Segmentation on: {segment_dir}")
     print(f"Scratch to: {fast_scratch}")
     print(f"Number of processes: {num_processes}")
     print(f"SNR: {SNR}")
@@ -191,18 +197,13 @@ if __name__ == "__main__":
     print(f"Compressing output: {config['general']['compress_output'] == 'True'}")
 
     # Check the permissions
-    if os.access(working_dir, os.W_OK) == False:
-        logger.error(f"Cannot write to project directory {working_dir}!")
+    if os.access(segment_dir, os.W_OK) == False:
+        logger.error(f"Cannot write to project directory {segment_dir}!")
         exit()
 
     if os.access(fast_scratch, os.W_OK) == False:
         logger.error(f"Cannot write to temporary directory {fast_scratch}!")
         exit()
-
-    # setup the output segmentation and measurements dir
-    raw_dir = working_dir + "/raw"
-    segment_dir = working_dir + "/segmentation"
-    fast_scratch = fast_scratch + "/segment-" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 
     logger.info("Setting up directories.")
     logger.debug(f"Setting up {segment_dir} and {fast_scratch}")

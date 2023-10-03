@@ -49,7 +49,6 @@ def classify(tar_file):
     
     timer_classify = time()
     logger.info("Starting classify")
-    date = datetime.datetime.now().strftime("%Y-%m-%d")
     basename = config['classification']['basename']
     logger.debug(f"Basename for model run is {basename}.")
     logger.info(f"Current ram usage (GB): {psutil.virtual_memory()[3]/1000000000:.2f}")
@@ -60,14 +59,13 @@ def classify(tar_file):
         tar_identifier = os.path.basename(image_dir)
         tmp_dir = fast_scratch + '/' + tar_identifier
         os.makedirs(tmp_dir, permis, exist_ok = True)
-        log_file = f"{classification_dir}/{tar_identifier}-{date}.log"
     else:
         image_dir = tar_file.replace(".tar", "") # remove extension
         tar_identifier = os.path.basename(image_dir)
         tmp_dir = fast_scratch + '/' + tar_identifier
         os.makedirs(tmp_dir, permis, exist_ok = True)
-        log_file = f"{classification_dir}/{tar_identifier}-{date}.log"
-
+        
+    log_file = f"{classification_dir}/{tar_identifier}.log"
     image_dir = tmp_dir
 
     gpu_id = queue.get()
@@ -139,7 +137,7 @@ def classify(tar_file):
 if __name__ == "__main__":
     """Main entry point for classification.py"""
     
-    v_string = "V2023.09.05"
+    v_string = "V2023.10.03"
     print(f"Starting Plankline Classification Script {v_string}")
 
     # create a parser for command line arguments
@@ -150,15 +148,9 @@ if __name__ == "__main__":
     # read in the arguments
     args = parser.parse_args()
     config = configparser.ConfigParser()
-    if os.path.exists('default.ini'):
-        config.read('default.ini')
     config.read(args.config)
-
-    working_dir = os.path.abspath(args.directory)
-
-    logging.config.fileConfig(config['logging']['config'], defaults={'date':datetime.datetime.now().strftime("%Y%m%d-%H%M%S"),'path':working_dir,'name':'classification'}) # TBK
-    logger = logging.getLogger('sLogger')
-
+    
+    basename = config['classification']['scnn_basename']
     permis = int(config['general']['dir_permissions'])
     scnn_instances = int(config['classification']['scnn_instances'])
     scnn_directory = config['classification']['scnn_dir']
@@ -166,17 +158,25 @@ if __name__ == "__main__":
     epoch = int(config['classification']['epoch'])
     fast_scratch = config['segmentation']['fast_scratch']
 
+    segmentation_dir = os.path.abspath(args.directory)  # /media/plankline/Data/analysis/segmentation/Camera1/Transect1 (reg)
+    classification_dir = segmentation_dir.replace('segmentation', 'classification')  # /media/plankline/Data/analysis/segmentation/Camera1/Transect1 (reg)
+    classification_dir = segmentation_dir.replace(')', f' {basename}')  # /media/plankline/Data/analysis/segmentation/Camera1/Transect1 (reg plankton)
+    fast_scratch = fast_scratch + "/classify-" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    
+    logging.config.fileConfig(config['logging']['config'], defaults={'date':datetime.datetime.now().strftime("%Y%m%d-%H%M%S"),'path':working_dir,'name':'classification'}) # TBK
+    logger = logging.getLogger('sLogger')
+
     # Print config options to screen (TBK)
     logger.info(f"Starting plankline classification {v_string}")
     print(f"Configureation file: {args.config}")
-    print(f"Segmentation on: {working_dir}")
+    print(f"Segmentation on: {segmentation_dir}")
     print(f"Number of instances: {scnn_instances}")
     print(f"Epoch: {epoch}")
     print(f"Log configuration file: {config['logging']['config']}")
 
     #  Check the permissions
-    if os.access(working_dir, os.W_OK) == False:
-        logger.error(f"Cannot write to project directory {working_dir}!")
+    if os.access(segmentation_dir, os.W_OK) == False:
+        logger.error(f"Cannot write to project directory {segmentation_dir}!")
         exit()
 
     if os.access(fast_scratch, os.W_OK) == False:
@@ -184,9 +184,7 @@ if __name__ == "__main__":
         exit()
 
     # segmentation_dir is where the input data is taken from
-    segmentation_dir = working_dir + "/segmentation"
-    classification_dir = working_dir + "/classification"
-    fast_scratch = fast_scratch + "/classify-" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    
     os.makedirs(classification_dir, permis, exist_ok = True)
     os.makedirs(fast_scratch, permis, exist_ok = True)
 

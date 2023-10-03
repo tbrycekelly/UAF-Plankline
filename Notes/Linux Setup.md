@@ -1,7 +1,7 @@
 ## 1. Recommended Installs
 These are common utilities and/or prerequisites for one or more of the steps recommended by this setup document.
 
-    sudo apt-get install r-base net-tools ethtool libopencv-dev libgdal-dev timeshift htop openssh-server unzip git
+    sudo apt-get install r-base net-tools ethtool libopencv-dev libgdal-dev timeshift htop openssh-server unzip git xfsprogs
 
 __Python Related:__ We are using python3 throughout the plankline processing scripts, and need to install some additional pacakges/libraries for image processing.
 

@@ -49,7 +49,6 @@ def classify(tar_file):
     
     timer_classify = time()
     logger.info("Starting classify")
-    basename = config['classification']['basename']
     logger.debug(f"Basename for model run is {basename}.")
     logger.info(f"Current ram usage (GB): {psutil.virtual_memory()[3]/1000000000:.2f}")
     logger.info(f"Current cpu usage (%): {psutil.cpu_percent(4):.1f}")

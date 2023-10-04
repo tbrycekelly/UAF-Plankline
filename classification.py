@@ -73,6 +73,7 @@ def classify(tar_file):
     logger.info(f'image_dir: {image_dir}')
     logger.info(f'tar_identifier: {tar_identifier}')
 
+    logger.info(f'Creating directory: {image_dir}')
     os.makedirs(image_dir, permis, exist_ok = True)
     
     # Untar files

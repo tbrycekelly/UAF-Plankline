@@ -65,7 +65,7 @@ def classify(tar_file):
         os.makedirs(tmp_dir, permis, exist_ok = True)
         
     log_file = f"{classification_dir}/{tar_identifier}.log"
-    image_dir = tmp_dir
+    image_dir = tmp_dir + '/'
 
     gpu_id = queue.get()
 

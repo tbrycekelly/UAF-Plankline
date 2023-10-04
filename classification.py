@@ -139,6 +139,7 @@ if __name__ == "__main__":
     """Main entry point for classification.py"""
     
     v_string = "V2023.10.03"
+    session_id = str(datetime.datetime.now().strftime("%Y%m%d %H%M%S"))
     print(f"Starting Plankline Classification Script {v_string}")
 
     # create a parser for command line arguments
@@ -162,12 +163,12 @@ if __name__ == "__main__":
     segmentation_dir = os.path.abspath(args.directory)  # /media/plankline/Data/analysis/segmentation/Camera1/Transect1 (reg)
     classification_dir = segmentation_dir.replace('segmentation', 'classification')  # /media/plankline/Data/analysis/segmentation/Camera1/Transect1 (reg)
     classification_dir = classification_dir.replace(')', f'-{basename})')  # /media/plankline/Data/analysis/segmentation/Camera1/Transect1 (reg plankton)
-    fast_scratch = fast_scratch + "/classify-" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    fast_scratch = fast_scratch + "/classify-" + session_id
     
     os.makedirs(classification_dir, permis, exist_ok = True)
     os.makedirs(fast_scratch, permis, exist_ok = True)
     
-    logging.config.fileConfig(config['logging']['config'], defaults={'date':datetime.datetime.now().strftime("%Y%m%d-%H%M%S"),'path':classification_dir,'name':'classification'}) # TBK
+    logging.config.fileConfig(config['logging']['config'], defaults={'date':session_id,'path':classification_dir,'name':'classification'}) # TBK
     logger = logging.getLogger('sLogger')
 
     # Print config options to screen (TBK)
@@ -196,7 +197,7 @@ if __name__ == "__main__":
         logger.error(f"Segmentation directory {segmentation_dir} does not exist (and it should)!")
         exit()
         
-    cp_file = classification_dir + '/' + str(datetime.datetime.now()) + ' ' + args.config
+    cp_file = classification_dir + '/' + session_id + ' ' + args.config
     logger.debug(f"Copying ini file to classification directory {classification_dir}")
     logger.info(f"Copy of log file in {cp_file}")
     shutil.copy2(args.config, cp_file)

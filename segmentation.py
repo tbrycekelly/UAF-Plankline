@@ -51,7 +51,7 @@ def seg_ff(avi, seg_output, SNR, segment_path):
     max_area = config['segmentation']['max_area']
     min_area = config['segmentation']['min_area']
 
-    segment_log = segment_dir + '/segment_' + str(datetime.datetime.now()) + '.log'
+    segment_log = segment_dir + '/segment_' + session_id + '.log'
     full_output = config['segmentation']['full_output']
 
     seg = f'nohup \"{segment_path}\" -i \"{avi}\" -o \"{seg_output}\" -s {snr} -e {epsilon} -M {max_area} -m {min_area} -d {delta} {full_output} >> \"{segment_log}\" 2>&1'
@@ -135,6 +135,7 @@ if __name__ == "__main__":
 
     v_string = "V2023.10.03"
     print(f"Starting Plankline Segmentation Script {v_string}")
+    session_id = str(datetime.datetime.now().strftime("%Y%m%d %H%M%S"))
     
     # create a parser for command line arguments
     parser = argparse.ArgumentParser(description="Segmentation tool for the plankton pipeline. Uses ffmpeg and seg_ff to segment a video into crops of plankton")
@@ -172,16 +173,16 @@ if __name__ == "__main__":
     working_dir = working_dir.replace("camera3/", "camera3/segmentation/") # /media/plankline/Data/analysis/Camera1/segmentation/Transect1
     
     segment_dir = working_dir + f"({basename})" # /media/plankline/Data/analysis/segmentation/Camera1/segmentation/Transect1(reg)
-    fast_scratch = fast_scratch + "/segment-" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    fast_scratch = fast_scratch + "/segment-" + session_id
 
     os.makedirs(segment_dir, permis, exist_ok = True)
     os.makedirs(fast_scratch, permis, exist_ok = True)
 
     ## Setup logger
-    logging.config.fileConfig(config['logging']['config'], defaults={'date':datetime.datetime.now().strftime("%Y%m%d-%H%M%S"),'path':segment_dir,'name':'segmentation'})
+    logging.config.fileConfig(config['logging']['config'], defaults={'date':session_id,'path':segment_dir,'name':'segmentation'})
     logger = logging.getLogger('sLogger')
 
-    cp_file = segment_dir + '/' + str(datetime.datetime.now().strftime("%Y%m%d-%H%M%S")) + ' ' + args.config
+    cp_file = segment_dir + '/' + session_id + ' ' + args.config
     logger.debug(f"Copying ini file to segmentation directory {segment_dir}")
     logger.info(f"Copy config to {cp_file}")
     shutil.copy2(args.config, cp_file)

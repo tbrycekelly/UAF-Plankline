@@ -201,7 +201,7 @@ if __name__ == "__main__":
     
     ## Copy classList
     class_path = scnn_directory + '/data/classList'
-    epoch_path = scnn_directory + '/weights/' + basename + '_epoch-' + epoch + '.cnn'
+    epoch_path = scnn_directory + '/weights/' + basename + '_epoch-' + str(epoch) + '.cnn'
     
     if not os.path.isfile(class_path):
         logger.error(f'classList file does not exist: {class_path}')

@@ -135,7 +135,7 @@ if __name__ == "__main__":
     """Main entry point for classification.py"""
     
     v_string = "V2023.10.03"
-    session_id = str(datetime.datetime.now().strftime("%Y%m%d %H%M%S"))
+    session_id = str(datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
     print(f"Starting Plankline Classification Script {v_string}")
 
     # create a parser for command line arguments

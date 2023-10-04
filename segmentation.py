@@ -135,7 +135,7 @@ if __name__ == "__main__":
 
     v_string = "V2023.10.03"
     print(f"Starting Plankline Segmentation Script {v_string}")
-    session_id = str(datetime.datetime.now().strftime("%Y%m%d %H%M%S"))
+    session_id = str(datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
     
     # create a parser for command line arguments
     parser = argparse.ArgumentParser(description="Segmentation tool for the plankton pipeline. Uses ffmpeg and seg_ff to segment a video into crops of plankton")

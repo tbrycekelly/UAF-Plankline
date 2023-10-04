@@ -55,34 +55,28 @@ def classify(tar_file):
     
     if config['general']['compress_output'] == 'True':
         image_dir = tar_file.replace(".tar.gz", "") # remove extension
-        tar_identifier = os.path.basename(image_dir)
-        tmp_dir = fast_scratch + '/' + tar_identifier
-        os.makedirs(tmp_dir, permis, exist_ok = True)
     else:
         image_dir = tar_file.replace(".tar", "") # remove extension
-        tar_identifier = os.path.basename(image_dir)
-        tmp_dir = fast_scratch + '/' + tar_identifier
-        os.makedirs(tmp_dir, permis, exist_ok = True)
         
+    tar_identifier = os.path.basename(image_dir)
+    tmp_dir = fast_scratch + '/' + tar_identifier
+    os.makedirs(tmp_dir, permis, exist_ok = True)
+    
     log_file = f"{classification_dir}/{tar_identifier}.log"
     image_dir = tmp_dir + '/'
 
     gpu_id = queue.get()
 
     logger.info(f"Starting on GPU {gpu_id}")
-    logger.info(f'image_dir: {image_dir}')
+    logger.info(f'image_dir: {tmp_dir}')
     logger.info(f'tar_identifier: {tar_identifier}')
-
-    logger.info(f'Creating directory: {image_dir}')
-    os.makedirs(image_dir, permis, exist_ok = True)
-    os.system(f'mkdir "{image_dir}\"')
     
     # Untar files
     if config['general']['compress_output'] == 'True':
-        untar_cmd = f'tar -xzf "{tar_file}" -C "{image_dir}" --strip-components=4 --wildcards "*.png"  >> "{log_file}" 2>&1' # TBK change strip-components to what you need.
+        untar_cmd = f'tar -xzf "{tar_file}" -C "{tmp_dir}" --strip-components=4 --wildcards "*.png"  >> "{log_file}" 2>&1' # TBK change strip-components to what you need.
         logger.debug('Untarring+unzipping files: ' + untar_cmd)
     else:
-        untar_cmd = f'tar -xf "{tar_file}" -C "{image_dir}" --strip-components=4 --wildcards "*.png"  >> "{log_file}" 2>&1' # TBK change strip-components to what you need.
+        untar_cmd = f'tar -xf "{tar_file}" -C "{tmp_dir}" --strip-components=4 --wildcards "*.png"  >> "{log_file}" 2>&1' # TBK change strip-components to what you need.
         logger.debug('Untarring files: ' + untar_cmd)
     
     timer_untar = time()
@@ -91,7 +85,7 @@ def classify(tar_file):
     logger.debug(f"Untarring files took {timer_untar:.3f} s.")
 
     # Perform classification.
-    scnn_cmd  = f"cd '{scnn_directory}'; nohup ./scnn -start {epoch} -stop {epoch} -unl '{image_dir}' -cD {gpu_id} -basename {basename} >> '{log_file}' 2>&1"
+    scnn_cmd  = f"cd '{scnn_directory}'; nohup ./scnn -start {epoch} -stop {epoch} -unl '{tmp_dir}' -cD {gpu_id} -basename {basename} >> '{log_file}' 2>&1"
     logger.debug('Running SCNN: ' + scnn_cmd)
     logger.info('Start SCNN.')
 
@@ -118,7 +112,7 @@ def classify(tar_file):
         logger.error(f'No classification file found for {tar_identifier}')
 
     # Clean directories to make space.
-    shutil.rmtree(image_dir)
+    #shutil.rmtree(tmp_dir)
 
     queue.put(gpu_id) # add the gpu id to the queue so that it can be allocated again
     logger.debug('End classify.')

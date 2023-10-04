@@ -85,7 +85,7 @@ def classify(tar_file):
     logger.debug(f"Untarring files took {timer_untar:.3f} s.")
 
     # Perform classification.
-    scnn_cmd  = f"cd '{scnn_directory}'; nohup ./scnn -start {epoch} -stop {epoch} -unl '{tmp_dir}' -cD {gpu_id} -basename {basename} >> '{log_file}' 2>&1"
+    scnn_cmd  = f"cd '{os.path.dirname(scnn_command)}'; nohup ./scnn -start {epoch} -stop {epoch} -unl '{tmp_dir}' -cD {gpu_id} -basename {basename} >> '{log_file}' 2>&1"
     logger.debug('Running SCNN: ' + scnn_cmd)
     logger.info('Start SCNN.')
 
@@ -96,8 +96,8 @@ def classify(tar_file):
     logger.debug(f"SCNN took {timer_scnn:.3f} s.")
 
     # Move the csv file resulting from classification.
-    logger.info(f"Looking for files in {scnn_directory}/Data/{basename}/ that match the id: {tar_identifier}")
-    csv_path = glob.glob(f"{scnn_directory}/Data/{basename}/*{tar_identifier[10:]}*")
+    logger.info(f"Looking for files in {os.path.dirname(scnn_command)}/data/{basename}/ that match the id: {tar_identifier}")
+    csv_path = glob.glob(f"{os.path.dirname(scnn_command)}/data/{basename}/*{tar_identifier[10:]}*")
     if len(csv_path) > 0:
         csv_path = csv_path[0]
         csv_file = f"{classification_dir}/{tar_identifier}.csv"
@@ -199,8 +199,18 @@ if __name__ == "__main__":
     shutil.copy2(args.config, cp_file)
     logger.debug("Done.")
     
-    shutil.copy2(scnn_command, scnn_directory + '/scnn')
-
+    ## Copy classList
+    class_path = scnn_directory + '/data/classList'
+    epoch_path = scnn_directory + '/weights/' + basename + '_epoch-' + epoch + '.cnn'
+    
+    if not os.path.isfile(class_path):
+        logger.error(f'classList file does not exist: {class_path}')
+    if not os.path.isfile(epoch_path):
+        logger.error(f'Epoch file does not exist: {epoch_path}')
+        
+    shutil.copy2(class_path, os.path.dirname(scnn_command) + '/data/')
+    shutil.copy2(epoch_path, os.path.dirname(scnn_command) + '/weights/')
+    
     if config['general']['compress_output'] == 'True':
         tars = [os.path.join(segmentation_dir, tar) for tar in os.listdir(segmentation_dir) if tar.endswith(".tar.gz")]
     else :

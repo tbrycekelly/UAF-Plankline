@@ -74,8 +74,8 @@ def classify(tar_file):
     logger.info(f'tar_identifier: {tar_identifier}')
 
     logger.info(f'Creating directory: {image_dir}')
-    tmp = os.makedirs(image_dir, permis, exist_ok = True)
-    print(tmp)
+    os.makedirs(image_dir, permis, exist_ok = True)
+    os.system(f"mkdir '{image_dir}'")
     
     # Untar files
     if config['general']['compress_output'] == 'True':

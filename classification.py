@@ -85,7 +85,8 @@ def classify(tar_file):
     logger.debug(f"Untarring files took {timer_untar:.3f} s.")
 
     # Perform classification.
-    scnn_cmd  = f"cd '{os.path.dirname(scnn_command)}'; nohup ./scnn -start {epoch} -stop {epoch} -unl '{tmp_dir}' -cD {gpu_id} -basename {basename} >> '{log_file}' 2>&1"
+    #scnn_cmd  = f"cd '{os.path.dirname(scnn_command)}'; nohup ./scnn -start {epoch} -stop {epoch} -unl '{tmp_dir}' -cD {gpu_id} -basename {basename} >> '{log_file}' 2>&1"
+    scnn_cmd  = f"nohup {scnn_command} -start {epoch} -stop {epoch} -unl '{tmp_dir}' -cD {gpu_id} -basename {basename} -project {scnn_directory} >> '{log_file}' 2>&1"
     logger.debug('Running SCNN: ' + scnn_cmd)
     logger.info('Start SCNN.')
 
@@ -207,9 +208,6 @@ if __name__ == "__main__":
         logger.error(f'classList file does not exist: {class_path}')
     if not os.path.isfile(epoch_path):
         logger.error(f'Epoch file does not exist: {epoch_path}')
-        
-    shutil.copy2(class_path, os.path.dirname(scnn_command) + '/data/')
-    shutil.copy2(epoch_path, os.path.dirname(scnn_command) + '/weights/')
     
     if config['general']['compress_output'] == 'True':
         tars = [os.path.join(segmentation_dir, tar) for tar in os.listdir(segmentation_dir) if tar.endswith(".tar.gz")]

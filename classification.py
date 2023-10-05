@@ -120,16 +120,16 @@ def classify(tar_file):
     timer_classify = time() - timer_classify
     logger.debug(f"Total classification process took {timer_classify:.3f} s.")
 
-    if config['R']['preprocess']:
-        timer_pre = time()
-        logger.debug('Preprocessing requested.')
+    #if config['R']['preprocess']:
+    #    timer_pre = time()
+    #    logger.debug('Preprocessing requested.')
 
-        pre_cmd = 'Rscript "' + config['R']['script'] + '" ' + config['R']['dt'] + ' ' + config['R']['p_threshold'] + ' "' + csv_file + '"'
-        logger.debug(f"Running preprocessing cmd: {pre_cmd}")
-        os.system(pre_cmd)
+    #    pre_cmd = 'Rscript "' + config['R']['script'] + '" ' + config['R']['dt'] + ' ' + config['R']['p_threshold'] + ' "' + csv_file + '"'
+    #    logger.debug(f"Running preprocessing cmd: {pre_cmd}")
+    #    os.system(pre_cmd)
 
-        timer_pre = time() - timer_pre
-        logger.debug(f"Preprocessing took {timer_pre:.3f} s.")
+    #    timer_pre = time() - timer_pre
+    #    logger.debug(f"Preprocessing took {timer_pre:.3f} s.")
 
 
 if __name__ == "__main__":

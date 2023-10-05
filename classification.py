@@ -175,7 +175,7 @@ if __name__ == "__main__":
     print(f"Segmentation on: {segmentation_dir}")
     print(f"Number of instances: {scnn_instances}")
     print(f"Epoch: {epoch}")
-    print(f"Batchsize: {print(f"Epoch: {epoch}")}")
+    print(f"Batchsize: {batchsize}")
     print(f"Log configuration file: {config['logging']['config']}")
     
     logger.info(f'Batchsize: {batchsize}')

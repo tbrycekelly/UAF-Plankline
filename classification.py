@@ -135,7 +135,7 @@ def classify(tar_file):
 if __name__ == "__main__":
     """Main entry point for classification.py"""
     
-    v_string = "V2023.10.03"
+    v_string = "V2023.10.05"
     session_id = str(datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
     print(f"Starting Plankline Classification Script {v_string}")
 
@@ -173,11 +173,15 @@ if __name__ == "__main__":
     logger.info(f"Starting plankline classification {v_string}")
     print(f"Configureation file: {args.config}")
     print(f"Segmentation on: {segmentation_dir}")
+    print(f"Model: {basename}")
     print(f"Number of instances: {scnn_instances}")
     print(f"Epoch: {epoch}")
     print(f"Batchsize: {batchsize}")
     print(f"Log configuration file: {config['logging']['config']}")
     
+    logger.info(f'Basename of Model: {basename}')
+    logger.info(f'Epoch: {epoch}')
+    logger.info(f'Segmentation Directory: {segmentation_dir}')
     logger.info(f'Batchsize: {batchsize}')
 
     #  Check the permissions

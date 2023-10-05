@@ -97,8 +97,8 @@ def classify(tar_file):
     logger.debug(f"SCNN took {timer_scnn:.3f} s.")
 
     # Move the csv file resulting from classification.
-    logger.info(f"Looking for files in {os.path.dirname(scnn_command)}/data/{basename}/ that match the id: {tar_identifier}")
-    csv_path = glob.glob(f"{os.path.dirname(scnn_command)}/data/{basename}/*{tar_identifier[10:]}*")
+    logger.info(f"Looking for files in {scnn_directory}/data/{basename}/ that match the id: {tar_identifier}")
+    csv_path = glob.glob(f"{scnn_directory}/data/{basename}/*{tar_identifier[10:]}*")
     if len(csv_path) > 0:
         csv_path = csv_path[0]
         csv_file = f"{classification_dir}/{tar_identifier}.csv"

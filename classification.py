@@ -155,8 +155,8 @@ if __name__ == "__main__":
     scnn_directory = config['classification']['scnn_dir']
     scnn_command = config['classification']['scnn_cmd']
     epoch = int(config['classification']['epoch'])
-    fast_scratch = config['segmentation']['fast_scratch']
-    batchsize = config['segmentation']['batchsize']
+    fast_scratch = config['classification']['fast_scratch']
+    batchsize = config['classification']['batchsize']
 
     segmentation_dir = os.path.abspath(args.directory)  # /media/plankline/Data/analysis/segmentation/Camera1/Transect1 (reg)
     classification_dir = segmentation_dir.replace('segmentation', 'classification')  # /media/plankline/Data/analysis/segmentation/Camera1/Transect1 (reg)

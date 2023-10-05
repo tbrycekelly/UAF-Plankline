@@ -86,7 +86,7 @@ def classify(tar_file):
 
     # Perform classification.
     #scnn_cmd  = f"cd '{os.path.dirname(scnn_command)}'; nohup ./scnn -start {epoch} -stop {epoch} -unl '{tmp_dir}' -cD {gpu_id} -basename {basename} >> '{log_file}' 2>&1"
-    scnn_cmd  = f"nohup {scnn_command} -start {epoch} -stop {epoch} -unl '{tmp_dir}' -cD {gpu_id} -basename {basename} -project {scnn_directory} >> '{log_file}' 2>&1"
+    scnn_cmd  = f"nohup {scnn_command} -start {epoch} -stop {epoch} -unl '{tmp_dir}' -bs {batchsize} -cD {gpu_id} -basename {basename} -project {scnn_directory} >> '{log_file}' 2>&1"
     logger.debug('Running SCNN: ' + scnn_cmd)
     logger.info('Start SCNN.')
 
@@ -156,6 +156,7 @@ if __name__ == "__main__":
     scnn_command = config['classification']['scnn_cmd']
     epoch = int(config['classification']['epoch'])
     fast_scratch = config['segmentation']['fast_scratch']
+    batchsize = config['segmentation']['batchsize']
 
     segmentation_dir = os.path.abspath(args.directory)  # /media/plankline/Data/analysis/segmentation/Camera1/Transect1 (reg)
     classification_dir = segmentation_dir.replace('segmentation', 'classification')  # /media/plankline/Data/analysis/segmentation/Camera1/Transect1 (reg)
@@ -174,7 +175,10 @@ if __name__ == "__main__":
     print(f"Segmentation on: {segmentation_dir}")
     print(f"Number of instances: {scnn_instances}")
     print(f"Epoch: {epoch}")
+    print(f"Batchsize: {print(f"Epoch: {epoch}")}")
     print(f"Log configuration file: {config['logging']['config']}")
+    
+    logger.info(f'Batchsize: {batchsize}')
 
     #  Check the permissions
     if os.access(segmentation_dir, os.W_OK) == False:

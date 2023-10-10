@@ -100,30 +100,17 @@ def local_main(avi):
     timer_seg = time() - timer_seg
     logger.debug(f"Segmentation executable took {timer_seg:.3f} s.")
 
-    if config['general']['compress_output'] == 'True':
-        logger.info('Start tarring+compressing.')
-        tar_name = out_dir + ".tar.gz"
-        tar = f'tar czf \"{tar_name}\" -C \"{seg_output}\" .'
-        logger.debug(tar)
-        
-        timer_tar = time()
-        os.system(tar)
-        os.chmod(tar_name, permis)
-        timer_tar = time() - timer_tar
+    logger.info('Start tarring')
+    tar_name = out_dir + ".tar"
+    tar = f'tar cf \"{tar_name}\" -C \"{seg_output}\" .'
+    logger.debug(tar)
 
-        logger.info(f'End tarring+compressing in {timer_tar:.3f} s.')
-    else:
-        logger.info('Start tarring')
-        tar_name = out_dir + ".tar"
-        tar = f'tar cf \"{tar_name}\" -C \"{seg_output}\" .'
-        logger.debug(tar)
+    timer_tar = time()
+    os.system(tar)
+    os.chmod(tar_name, permis)
+    timer_tar = time() - timer_tar
 
-        timer_tar = time()
-        os.system(tar)
-        os.chmod(tar_name, permis)
-        timer_tar = time() - timer_tar
-
-        logger.info(f'End tarring in {timer_tar:.3f} s.')
+    logger.info(f'End tarring in {timer_tar:.3f} s.')
 
     shutil.rmtree(seg_output)          # remove datecode_s/
     shutil.rmtree(avi_segment_scratch) # remove datecode/
@@ -133,7 +120,7 @@ def local_main(avi):
 if __name__ == "__main__":
     """The main entry point and script for segmentation."""
 
-    v_string = "V2023.10.03"
+    v_string = "V2023.10.10"
     print(f"Starting Plankline Segmentation Script {v_string}")
     session_id = str(datetime.datetime.now().strftime("%Y%m%d_%H%M%S")).replace(':', '')
     
@@ -172,7 +159,7 @@ if __name__ == "__main__":
     working_dir = working_dir.replace("camera2/", "camera2/segmentation/") # /media/plankline/Data/analysis/Camera1/segmentation/Transect1
     working_dir = working_dir.replace("camera3/", "camera3/segmentation/") # /media/plankline/Data/analysis/Camera1/segmentation/Transect1
     
-    segment_dir = working_dir + f"({basename})" # /media/plankline/Data/analysis/segmentation/Camera1/segmentation/Transect1(reg)
+    segment_dir = working_dir + f"-{basename}" # /media/plankline/Data/analysis/segmentation/Camera1/segmentation/Transect1(reg)
     fast_scratch = fast_scratch + "/segment-" + session_id
 
     os.makedirs(segment_dir, permis, exist_ok = True)
@@ -190,7 +177,6 @@ if __name__ == "__main__":
 
     logger.info(f"Starting plankline segmentation {v_string}")
     logger.debug(f"Segmentation on: {working_dir}")
-    logger.debug(f"Number of processes: {num_processes}")
     logger.debug(f"Machine scratch: {fast_scratch}")
 
     # Print config options to screen (TBK)
@@ -199,7 +185,6 @@ if __name__ == "__main__":
     print(f"Segmentation from: {raw_dir}")
     print(f"Segmentation to: {segment_dir}")
     print(f"Scratch to: {fast_scratch}")
-    print(f"Number of processes: {num_processes}")
     print(f"SNR: {SNR}")
     print(f"Log configuration file: {config['logging']['config']}")
     print(f"Compressing output: {config['general']['compress_output'] == 'True'}")
@@ -225,20 +210,13 @@ if __name__ == "__main__":
 
     if (len(avis) == 0):
         logger.error(f"No avi files found in machine_scratch/raw make sure avi files are in {raw_dir}.")
-        exit()
-
-    # Parallel portion of the code.
-    logger.info("Starting multithreaded segmentation call.")
-    p = Pool(num_processes)
+        sys.exit(f"No avi files found in machine_scratch/raw make sure avi files are in {raw_dir}.")
 
     # TBK:
     timer_pool = time()
-    for _ in tqdm.tqdm(p.imap_unordered(local_main, avis), total = len(avis)):
-        pass
+    for f in tqdm(avis):
+        local_main(f)
     timer_pool = time() - timer_pool
-
-    p.close()
-    p.join() # blocks so that we can wait for the processes to finish
 
     logger.debug(f"Finished segmentation in {timer_pool:.3f} s.")
     print(f"Finished segmentation in {timer_pool:.1f} seconds.")

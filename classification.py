@@ -160,16 +160,13 @@ def print_config(config):
     logger.info(f"Starting plankline classification {v_string}")
     print(f"Configureation file: {args.config}")
     print(f"Segmentation on: {segmentation_dir}")
-    print(f"Model: {basename}")
-    print(f"Number of instances: {scnn_instances}")
-    print(f"Epoch: {epoch}")
-    print(f"Batchsize: {batchsize}")
+    print(f"Model: {config['classification']['model_name']}")
+    print(f"Batchsize: {config['classification']['batchsize']}")
     print(f"Log configuration file: {config['logging']['config']}")
     
-    logger.info(f'Basename of Model: {basename}')
-    logger.info(f'Epoch: {epoch}')
+    logger.info(f'Basename of Model: {config["classification"]["model_name"]}')
     logger.info(f'Segmentation Directory: {segmentation_dir}')
-    logger.info(f'Batchsize: {batchsize}')
+    logger.info(f'Batchsize: {config["classification"]["batchsize"]}')
 
 
 if __name__ == "__main__":
@@ -190,90 +187,73 @@ if __name__ == "__main__":
     config.read(args.config)
     
 
-    segmentation_dir = os.path.abspath(args.directory)  # /media/plankline/Data/analysis/segmentation/Camera1/Transect1 (reg)
-    classification_dir = segmentation_dir.replace('segmentation', 'classification')  # /media/plankline/Data/analysis/segmentation/Camera1/Transect1 (reg)
-    classification_dir = classification_dir.replace(')', f'-{basename})')  # /media/plankline/Data/analysis/segmentation/Camera1/Transect1 (reg plankton)
-    fast_scratch = fast_scratch + "/classify-" + session_id
+    segmentation_dir = os.path.abspath(args.directory)  # /media/plankline/Data/analysis/segmentation/Camera1/Transect1-reg
+    classification_dir = segmentation_dir.replace('segmentation', 'classification')  # /media/plankline/Data/analysis/segmentation/Camera1/Transect1-reg
+    classification_dir = classification_dir + '-' + config["classification"]["model_name"] # /media/plankline/Data/analysis/segmentation/Camera1/Transect1-reg-Plankton
+    fast_scratch = config['classification']['fast_scratch'] + "/classify-" + session_id
     
-    os.makedirs(classification_dir, permis, exist_ok = True)
-    os.makedirs(fast_scratch, permis, exist_ok = True)
+    os.makedirs(classification_dir, config['general']['dir_permissions'], exist_ok = True)
+    os.makedirs(fast_scratch, config['general']['dir_permissions'], exist_ok = True)
     
     logging.config.fileConfig(config['logging']['config'], defaults={'date':session_id,'path':classification_dir,'name':'classification'}) # TBK
     logger = logging.getLogger('sLogger')
 
     print_config(config)
     
-    #  Check the permissions
-    if os.access(segmentation_dir, os.W_OK) == False:
-        logger.error(f"Cannot write to project directory {segmentation_dir}!")
-        exit()
-        
-    if os.access(scnn_directory, os.W_OK) == False:
-        logger.error(f"Cannot write to model directory {scnn_directory}!")
+    
+    ##  Check the permissions
+    # segmentation_dir: Read
+    # model_dir: Read
+    # classification_dir: Write
+    # Scratch: Write
+    if os.access(segmentation_dir, os.R_OK) == False:
+        logger.error(f"Cannot read segmentation directory {segmentation_dir}!")
         exit()
 
+    if os.access(config['classification']['model_dir'], os.R_OK) == False:
+        logger.error(f"Cannot read from model directory {config['classification']['model_dir']}!")
+        exit()
+        
+    if os.access(classification_dir, os.W_OK) == False:
+        logger.error(f"Cannot write to classification directory {classification_dir}!")
+        exit()
+        
     if os.access(fast_scratch, os.W_OK) == False:
         logger.error(f"Cannot write to temporary directory {fast_scratch}!")
         exit()
-
-    # make sure this is a valid directory
-    if not os.path.exists(segmentation_dir):
-        logger.error(f"Segmentation directory {segmentation_dir} does not exist (and it should)!")
-        exit()
         
-    cp_file = classification_dir + '/' + session_id + ' ' + args.config
+    logger.info('All directory permissions appear satisfied.')
+
+        
+    cp_file = classification_dir + '/' + args.config + session_id
     logger.debug(f"Copying ini file to classification directory {classification_dir}")
     logger.info(f"Copy of log file in {cp_file}")
     shutil.copy2(args.config, cp_file)
     logger.debug("Done.")
     
-    ## Copy classList
-    class_path = scnn_directory + '/data/classList'
-    epoch_path = scnn_directory + '/weights/' + basename + '_epoch-' + str(epoch) + '.cnn'
+    tars = [os.path.join(segmentation_dir, tar) for tar in os.listdir(segmentation_dir) if tar.endswith(".tar")]
     
-    if not os.path.isfile(class_path):
-        logger.error(f'classList file does not exist: {class_path}')
-    if not os.path.isfile(epoch_path):
-        logger.error(f'Epoch file does not exist: {epoch_path}')
-    
-    if config['general']['compress_output'] == 'True':
-        tars = [os.path.join(segmentation_dir, tar) for tar in os.listdir(segmentation_dir) if tar.endswith(".tar.gz")]
-    else :
-        tars = [os.path.join(segmentation_dir, tar) for tar in os.listdir(segmentation_dir) if tar.endswith(".tar")]
-
     if len(tars) == 0:
-        sys.exit("Error: No tars file in segmenation directory")
+        logger.error(f'No tar files found in {segmentation_dir}.')
+        sys.exit(f"Error: No tars file in segmenation directory: {segmentation_dir}")
 
-    # setup gpu queue
-    #num_gpus = str(subprocess.check_output(["nvidia-smi", "-L"])).count('UUID') # read number of gpus from nvidia-smi output
 
-    #queue = Queue()
-    #for gpu_id in range(num_gpus):
-    #    for _ in range(scnn_instances):
-    #        queue.put(gpu_id)
-
-    num_processes = scnn_instances * num_gpus
     tar_length = len(tars)
-    logger.debug(f"Number of GPUs: {num_gpus}")
-    logger.debug(f"SCNN Instances per GPU: {scnn_instances}")
-    logger.debug(f"Total Processes: {num_processes}")
     logger.info(f"Identified {tar_length} tar.gz files")
-
-    model = tf.keras.models.load_model(model_file)
-
-    # this is the parallel portion of the code
-    #p = Pool(num_processes)
-
-    # Start the Classification processes.
-    timer_pool = time()
-    #for _ in tqdm.tqdm(p.imap_unordered(classify, tars, chunksize = 1), total = len(tars)):
-    #    pass
-    for f in tars:
-        classify(model, tars)
-
-    #p.close()
-    #p.join() # blocks so that we can wait for the processes to finish
+    model_path = config['classification']['model_dir'] + '/' + config['classification']['model_name']
     
+    if not os.path.isdir(mode_path):
+        logger.error(f'No model found at {model_path}!')
+        sys.exit('Error, no model found at {model_path}')
+    
+    logger.debug(f'Loading model from {model_path}.')
+    model = tf.keras.models.load_model(model_path)
+
+    timer_pool = time()
+    logger.info('Starting classification loop.')
+    for f in tqdm(tars):
+        classify(model, f)
+
     timer_pool = time() - timer_pool
     logger.debug(f"Finished classification in {timer_pool:.3f} seconds.")
     print(f"Finished Classification in {timer_pool:.1f} seconds.")

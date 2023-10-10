@@ -42,17 +42,9 @@ import datetime
 from time import time
 from multiprocessing import Pool, Queue
 import psutil
-import tensorflow as tf
-import seaborn as sns
-import matplotlib.pyplot as plt
-import numpy as np
-import pathlib
-import csv
-from PIL import Image
-import os
 
 
-def classify(model, tar_file):
+def classify(tar_file):
     """Classify images contained within a TAR file."""
     
     timer_classify = time()
@@ -73,6 +65,9 @@ def classify(model, tar_file):
     log_file = f"{classification_dir}/{tar_identifier}.log"
     image_dir = tmp_dir + '/'
 
+    gpu_id = queue.get()
+
+    logger.info(f"Starting on GPU {gpu_id}")
     logger.info(f'image_dir: {tmp_dir}')
     logger.info(f'tar_identifier: {tar_identifier}')
     
@@ -89,87 +84,52 @@ def classify(model, tar_file):
     timer_untar = time() - timer_untar
     logger.debug(f"Untarring files took {timer_untar:.3f} s.")
 
-    # Load Dataset
-    pad(tmp_dir)
-    images = []
-    image_files = []
-    for img in os.listdir(tmp_dir):
-        image_files.append(img)
-        img = tf.keras.preprocessing.image.load_img(tmp_dir+img, target_size=(128, 128), color_mode='grayscale')
-        img = np.expand_dims(img, axis=0)
-        images.append(img)
-    images = np.vstack(images)
-    logger.debug(f'Found {len(image_files)} image files in {tmp_dir}.')
-
     # Perform classification.
     #scnn_cmd  = f"cd '{os.path.dirname(scnn_command)}'; nohup ./scnn -start {epoch} -stop {epoch} -unl '{tmp_dir}' -cD {gpu_id} -basename {basename} >> '{log_file}' 2>&1"
+    scnn_cmd  = f"nohup {scnn_command} -start {epoch} -stop {epoch} -unl '{tmp_dir}' -bs {batchsize} -cD {gpu_id} -basename {basename} -project {scnn_directory} >> '{log_file}' 2>&1"
+    logger.debug('Running SCNN: ' + scnn_cmd)
+    logger.info('Start SCNN.')
+
     timer_scnn = time()
-    predictions = model.predict(images)
+    os.system(scnn_cmd)
     timer_scnn = time() - timer_scnn
     logger.info('End SCNN.')
     logger.debug(f"SCNN took {timer_scnn:.3f} s.")
 
-    prediction_labels = np.argmax(predictions, axis=-1)
-    np.savetxt('prediction.csv', predictions, delimiter=',')
+    # Move the csv file resulting from classification.
+    logger.info(f"Looking for files in {scnn_directory}/data/ that match the id: {tar_identifier}")
+    csv_path = glob.glob(f"{scnn_directory}/data/*{tar_identifier}*")
+    if len(csv_path) > 0:
+        csv_path = csv_path[0]
+        csv_file = f"{classification_dir}/{tar_identifier}.csv"
 
-    with open('prediction_names.csv', newline='', mode='w') as csvfile:
-        csvwritter = csv.writer(csvfile, delimiter='\n')
-        csvwritter.writerow(image_files)
+        timer_move = time()
+        shutil.move(csv_path, csv_file)
+        os.chmod(csv_file, permis)
+        timer_move = time() - timer_move
+        logger.debug(f"Moving csv(s) took {timer_move:.3f} s.")
+        
+    else:
+        logger.error(f'No classification file found for {tar_identifier}')
 
+    # Clean directories to make space.
+    #shutil.rmtree(tmp_dir)
+
+    queue.put(gpu_id) # add the gpu id to the queue so that it can be allocated again
     logger.debug('End classify.')
     timer_classify = time() - timer_classify
     logger.debug(f"Total classification process took {timer_classify:.3f} s.")
 
+    #if config['R']['preprocess']:
+    #    timer_pre = time()
+    #    logger.debug('Preprocessing requested.')
 
-def pad(path, ratio=0.2):
-    dirs = os.listdir(path)
-    count = 0
-    for item in dirs:
-        if not os.path.isfile(path + item):
-            dirs2 = os.listdir(path + item + "/")
-            for item2 in dirs2:
-                if os.path.isfile(path+item+"/"+item2):
-                    im = Image.open(path+item+"/"+item2)
-                    width, height = im.size
-                    if width > height * (1. + ratio):
-                        left = 0
-                        right = width
-                        top = (width - height)//2
-                        bottom = width
-                        result = Image.new(im.mode, (right, bottom), (255))
-                        result.paste(im, (left, top))
-                        im.close()
-                        result.save(path+item+"/"+item2)
-                        #print(f"({width}x{height}) -> ({right}x{bottom})")
-                        count+=1
-                    elif height > width * (1. + ratio):
-                        left = (height - width)//2
-                        right = height
-                        top = 0
-                        bottom = height
-                        result = Image.new(im.mode, (right, bottom), (255))
-                        result.paste(im, (left, top))
-                        im.close()
-                        result.save(path+item+"/"+item2,)
-                        #print(f"({width}x{height}) -> ({right}x{bottom})")
-                        count+=1
-    count
+    #    pre_cmd = 'Rscript "' + config['R']['script'] + '" ' + config['R']['dt'] + ' ' + config['R']['p_threshold'] + ' "' + csv_file + '"'
+    #    logger.debug(f"Running preprocessing cmd: {pre_cmd}")
+    #    os.system(pre_cmd)
 
-
-def print_config(config):
-    logger.info(f"Starting plankline classification {v_string}")
-    print(f"Configureation file: {args.config}")
-    print(f"Segmentation on: {segmentation_dir}")
-    print(f"Model: {basename}")
-    print(f"Number of instances: {scnn_instances}")
-    print(f"Epoch: {epoch}")
-    print(f"Batchsize: {batchsize}")
-    print(f"Log configuration file: {config['logging']['config']}")
-    
-    logger.info(f'Basename of Model: {basename}')
-    logger.info(f'Epoch: {epoch}')
-    logger.info(f'Segmentation Directory: {segmentation_dir}')
-    logger.info(f'Batchsize: {batchsize}')
+    #    timer_pre = time() - timer_pre
+    #    logger.debug(f"Preprocessing took {timer_pre:.3f} s.")
 
 
 if __name__ == "__main__":
@@ -189,6 +149,14 @@ if __name__ == "__main__":
     config = configparser.ConfigParser()
     config.read(args.config)
     
+    basename = config['classification']['scnn_basename']
+    permis = int(config['general']['dir_permissions'])
+    scnn_instances = int(config['classification']['scnn_instances'])
+    scnn_directory = config['classification']['scnn_dir']
+    scnn_command = config['classification']['scnn_cmd']
+    epoch = int(config['classification']['epoch'])
+    fast_scratch = config['classification']['fast_scratch']
+    batchsize = config['classification']['batchsize']
 
     segmentation_dir = os.path.abspath(args.directory)  # /media/plankline/Data/analysis/segmentation/Camera1/Transect1 (reg)
     classification_dir = segmentation_dir.replace('segmentation', 'classification')  # /media/plankline/Data/analysis/segmentation/Camera1/Transect1 (reg)
@@ -201,8 +169,21 @@ if __name__ == "__main__":
     logging.config.fileConfig(config['logging']['config'], defaults={'date':session_id,'path':classification_dir,'name':'classification'}) # TBK
     logger = logging.getLogger('sLogger')
 
-    print_config(config)
+    # Print config options to screen (TBK)
+    logger.info(f"Starting plankline classification {v_string}")
+    print(f"Configureation file: {args.config}")
+    print(f"Segmentation on: {segmentation_dir}")
+    print(f"Model: {basename}")
+    print(f"Number of instances: {scnn_instances}")
+    print(f"Epoch: {epoch}")
+    print(f"Batchsize: {batchsize}")
+    print(f"Log configuration file: {config['logging']['config']}")
     
+    logger.info(f'Basename of Model: {basename}')
+    logger.info(f'Epoch: {epoch}')
+    logger.info(f'Segmentation Directory: {segmentation_dir}')
+    logger.info(f'Batchsize: {batchsize}')
+
     #  Check the permissions
     if os.access(segmentation_dir, os.W_OK) == False:
         logger.error(f"Cannot write to project directory {segmentation_dir}!")
@@ -245,12 +226,12 @@ if __name__ == "__main__":
         sys.exit("Error: No tars file in segmenation directory")
 
     # setup gpu queue
-    #num_gpus = str(subprocess.check_output(["nvidia-smi", "-L"])).count('UUID') # read number of gpus from nvidia-smi output
+    num_gpus = str(subprocess.check_output(["nvidia-smi", "-L"])).count('UUID') # read number of gpus from nvidia-smi output
 
-    #queue = Queue()
-    #for gpu_id in range(num_gpus):
-    #    for _ in range(scnn_instances):
-    #        queue.put(gpu_id)
+    queue = Queue()
+    for gpu_id in range(num_gpus):
+        for _ in range(scnn_instances):
+            queue.put(gpu_id)
 
     num_processes = scnn_instances * num_gpus
     tar_length = len(tars)
@@ -259,20 +240,16 @@ if __name__ == "__main__":
     logger.debug(f"Total Processes: {num_processes}")
     logger.info(f"Identified {tar_length} tar.gz files")
 
-    model = tf.keras.models.load_model(model_file)
-
     # this is the parallel portion of the code
-    #p = Pool(num_processes)
+    p = Pool(num_processes)
 
     # Start the Classification processes.
     timer_pool = time()
-    #for _ in tqdm.tqdm(p.imap_unordered(classify, tars, chunksize = 1), total = len(tars)):
-    #    pass
-    for f in tars:
-        classify(model, tars)
+    for _ in tqdm.tqdm(p.imap_unordered(classify, tars, chunksize = 1), total = len(tars)):
+        pass
 
-    #p.close()
-    #p.join() # blocks so that we can wait for the processes to finish
+    p.close()
+    p.join() # blocks so that we can wait for the processes to finish
     
     timer_pool = time() - timer_pool
     logger.debug(f"Finished classification in {timer_pool:.3f} seconds.")

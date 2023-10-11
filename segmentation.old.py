@@ -38,97 +38,90 @@ import configparser # TBK: To read config file
 import tqdm # TBK
 from time import time
 import psutil
-from PIL import Image
-import cv2
-import numpy as np
-import time
 
 from multiprocessing import Pool
 import datetime
 
 
-def bbox_area(bbox):
-    res = []
-    for p in bbox:
-        res.append(abs(p[2]*p[3]))
-    return res
+def seg_ff(avi, seg_output, SNR, segment_path):
+    """Formats and calls the segmentation executable"""
+    snr = str(SNR)
+    epsilon = config['segmentation']['overlap']
+    delta = config['segmentation']['delta']
+    max_area = config['segmentation']['max_area']
+    min_area = config['segmentation']['min_area']
 
-def intersection(boxA, boxB):
-    # determine the (x, y)-coordinates of the intersection rectangle
-    xA = max(boxA[0], boxB[0])
-    yA = max(boxA[1], boxB[1])
-    xB = min(boxA[2], boxB[2])
-    yB = min(boxA[3], boxB[3])
+    segment_log = segment_dir + '/segment_' + session_id + '.log'
+    full_output = config['segmentation']['full_output']
 
-    # compute the area of intersection rectangle
-    interArea = abs(max((xB - xA, 0)) * max((yB - yA), 0))
+    seg = f'nohup \"{segment_path}\" -i \"{avi}\" -o \"{seg_output}\" -s {snr} -e {epsilon} -M {max_area} -m {min_area} -d {delta} {full_output} >> \"{segment_log}\" 2>&1'
+    logger.info("Segmentation call: " + seg)
 
-    return interArea
+    os.chmod(seg_output, permis)
+
+    timer_seg = time()
+    os.system(seg)
+    timer_seg = time() - timer_seg
+    logger.debug(f"Segmentation finished in {timer_seg:.3f} s.")
 
 
-def seg_image(imgs, config):
-    for path in imgs:
-        time1 = time.time()
 
-        ## Read img and flatfield
-        img = cv2.imread(path)
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        gray = np.array(gray)
-        field = np.quantile(gray, q=float(config['segmentation']['flatfield_q']), axis=0)
-        gray = (gray / field.T * 255.0)
-        gray = gray.clip(0,255).astype(np.uint8)
+def local_main(avi):
+    """A single threaded function that takes one avi path."""
+    logger.info("Starting local_main.")
 
-        # Detect regions
-        mser = cv2.MSER_create(delta=int(config['segmentation']['delta']), min_area=int(config['segmentation']['min_area']), max_area=int(config['segmentation']['max_area']), max_variation=0.5, min_diversity=0.1)
-        regions, bboxes = mser.detectRegions(gray)
-        area = bbox_area(bboxes)
+    # setup all of the local paths for the avi
+    avi_file = os.path.basename(avi) # get only the file part of the full path
+    avi_date_code = os.path.splitext(avi_file)[0] # remove .avi
+    avi_segment_scratch = fast_scratch + "/" + avi_date_code
+    seg_output = avi_segment_scratch + "_s"
+    out_dir = segment_dir + "/" + avi_date_code
 
-        for x in range(len(area)-1):
-            for y in range(x+1, len(area)):
-                overlap = intersection([bboxes[x][0], bboxes[x][1], bboxes[x][0]+bboxes[x][2], bboxes[x][1] + bboxes[x][3]], [bboxes[y][0], bboxes[y][1], bboxes[y][0]+bboxes[y][2], bboxes[y][1] + bboxes[y][3]])
-                if overlap * 1. / max(area[x], area[y]) > float(config['segmentation']['overlap']):
-                    if area[x] > area[y]:
-                        bboxes[y] = [0,0,0,0]
-                    else:
-                        bboxes[x] = [0,0,0,0]
-
-        area = bbox_area(bboxes)
-        bboxes = bboxes[np.array(area) > 0]
-        time2 = time.time()
-
-        # Draw the regions on the image
-        #for p in bboxes:
-        #    cv2.rectangle(gray, (p[0], p[1]), (p[0] + p[2], p[1] + p[3]), (255, 0, 0), 2)
-
-        for i in range(len(bboxes)):
-            im = Image.fromarray(gray[bboxes[i][1]:(bboxes[i][1] + bboxes[i][3]), bboxes[i][0]:(bboxes[i][0] + bboxes[i][2])])
-            im.save(f"./full_frames/test_{i:04}.png")
-
-        #cv2.imshow("MSER regions", gray)
-        #cv2.waitKey(0)
-
-        print(f'Number of ROIs: {len(bboxes):,}')
-        print(f'Total area of ROIs: {sum(area):,}')
-        print(f'Time spend: {time2-time1:.1f} sec')
+    logger.info(f'avi_file: {avi_file}')
+    logger.info(f'avi_date_code: {avi_date_code}')
+    logger.info(f'avi_segment_scratch: {avi_segment_scratch}')
+    logger.info(f'seg_output: {seg_output}')
+    logger.info(f'segment_dir: {segment_dir}')
+    logger.info(f"Current ram usage (GB): {psutil.virtual_memory()[3]/1000000000:.2f}")
+    logger.info(f"Current cpu usage (%): {psutil.cpu_percent(4):.1f}")
     
 
-def split_avi(path):
-    
-    ffmpeg_call = f"ffmpeg -i myfile.avi -r 1000 -f image2 image-%07d.png"
-    return path
+    logger.debug(f'Starting AVI file: {avi_file}')
 
-def config_checks(config):
-    if config.has_option('logging', 'config') == False:
-        print(f"No logging:config specified in {args.config}. Aborting!")
-        exit()
-    
-    
+    # Create necessary directory structure.
+    logger.info('Setting up AVI directories.')
+    os.makedirs(avi_segment_scratch, permis, exist_ok=True)
+    os.makedirs(seg_output, permis, exist_ok=True)
+
+    # Segmentation.
+    logger.info('Starting segmentation.')
+    timer_seg = time()
+    seg_ff(avi, seg_output, SNR, segment_path)
+    timer_seg = time() - timer_seg
+    logger.debug(f"Segmentation executable took {timer_seg:.3f} s.")
+
+    logger.info('Start tarring')
+    tar_name = out_dir + ".tar"
+    tar = f'tar cf \"{tar_name}\" -C \"{seg_output}\" .'
+    logger.debug(tar)
+
+    timer_tar = time()
+    os.system(tar)
+    os.chmod(tar_name, permis)
+    timer_tar = time() - timer_tar
+
+    logger.info(f'End tarring in {timer_tar:.3f} s.')
+
+    shutil.rmtree(seg_output)          # remove datecode_s/
+    shutil.rmtree(avi_segment_scratch) # remove datecode/
+    logger.info('End local_main.')
+
 
 if __name__ == "__main__":
     """The main entry point and script for segmentation."""
 
     v_string = "V2023.10.10"
-    print(f"Starting Segmentation Script {v_string}")
+    print(f"Starting Plankline Segmentation Script {v_string}")
     session_id = str(datetime.datetime.now().strftime("%Y%m%d_%H%M%S")).replace(':', '')
     
     # create a parser for command line arguments
@@ -146,7 +139,9 @@ if __name__ == "__main__":
     config = configparser.ConfigParser()
     config.read(args.config)
 
-    config_checks(config)
+    if config.has_option('logging', 'config') == False:
+        print(f"No logging:config specified in {args.config}. Aborting!")
+        exit()
 
     ## Read in config options:
     basename = config['segmentation']['segment_basename']
@@ -192,6 +187,7 @@ if __name__ == "__main__":
     print(f"Scratch to: {fast_scratch}")
     print(f"SNR: {SNR}")
     print(f"Log configuration file: {config['logging']['config']}")
+    print(f"Compressing output: {config['general']['compress_output'] == 'True'}")
 
     # Check the permissions
     if os.access(segment_dir, os.W_OK) == False:
@@ -216,11 +212,10 @@ if __name__ == "__main__":
         logger.error(f"No avi files found in machine_scratch/raw make sure avi files are in {raw_dir}.")
         sys.exit(f"No avi files found in machine_scratch/raw make sure avi files are in {raw_dir}.")
 
+    # TBK:
     timer_pool = time()
     for f in tqdm(avis):
-        img_path = split_avis(f)
-        imgs = [os.path.join(img_path, i) for i in os.list.dir(img_path) if i.endswith('.png')]
-        seg_image(imgs)
+        local_main(f)
     timer_pool = time() - timer_pool
 
     logger.debug(f"Finished segmentation in {timer_pool:.3f} s.")

@@ -215,3 +215,4 @@ if __name__ == "__main__":
         process_avi(av, segmentation_dir, config, q)
 
     worker.join(timeout=10)
+

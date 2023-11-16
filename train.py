@@ -37,14 +37,12 @@ License:
     SOFTWARE.
 """
 import os
-import sys
 import shutil
 import argparse
 import logging # TBK: logging module
 import logging.config # TBK
 import configparser # TBK: To read config file
 import tqdm # TBK
-import subprocess
 from time import time
 import psutil
 from multiprocessing import Pool
@@ -54,7 +52,6 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
 import pathlib
-import defs
 import os
 from PIL import Image
 
@@ -118,34 +115,92 @@ def classify(model_file, input_dir):
         csvwritter.writerow(image_files)
 
 
-def print_config(config):
-    # This function provides information for the user to both their screen and to the configured log file.
-    logger.info(f"Starting training script {v_string}")
 
-    print(f"Configuration file:    {args.config} (Version {config_version})")
-    print(f"Performing training for {model_name}")
-    print(f"Performing training from {model_dir}")
-    print(f"Starting Epoch:        {start_epoch}")
-    print(f"Stopping Epoch:        {stop_epoch}")
-    print(f"Validation Ratio:      {val_ratio}")
+def init_model(num_classes, img_height, img_width):
+
+    #### # Plankline-ish
+    model = tf.keras.models.Sequential(name=config['training']['model_name']) # Sequential alphabetic names in Alaska
+    model.add(tf.keras.layers.InputLayer(input_shape=(img_height,img_width,1)))
+    model.add(tf.keras.layers.Rescaling(-1./255, 1))
+    model.add(tf.keras.layers.RandomRotation(1))
+    model.add(tf.keras.layers.RandomFlip("horizontal"))
+
+    model.add(tf.keras.layers.Conv2D(96, 11, activation='relu'))
+    model.add(tf.keras.layers.Conv2D(96, 3, activation='relu'))
+    model.add(tf.keras.layers.MaxPooling2D(pool_size=(2,2)))
+    model.add(tf.keras.layers.BatchNormalization())
+
+    model.add(tf.keras.layers.Conv2D(96, 3, activation='relu', padding='same'))
+    model.add(tf.keras.layers.Conv2D(96, 3, activation='relu', padding='same'))
+    model.add(tf.keras.layers.MaxPooling2D(pool_size=(2,2)))
+
+    model.add(tf.keras.layers.Conv2D(128, 3, activation='relu', padding='same'))
+    model.add(tf.keras.layers.Conv2D(128, 3, activation='relu', padding='same'))
+    model.add(tf.keras.layers.MaxPooling2D(pool_size=(2,2)))
+    model.add(tf.keras.layers.BatchNormalization())
+
+    model.add(tf.keras.layers.Conv2D(256, 3, activation='relu', padding='same'))
+    model.add(tf.keras.layers.Conv2D(256, 3, activation='relu', padding='same'))
+    model.add(tf.keras.layers.MaxPooling2D(pool_size=(2,2)))
+    model.add(tf.keras.layers.BatchNormalization())
+
+    model.add(tf.keras.layers.Conv2D(192, 3, activation='relu', padding='same'))
+    model.add(tf.keras.layers.Conv2D(192, 1, activation='relu', padding='same'))
+    model.add(tf.keras.layers.MaxPooling2D(pool_size=(2,2)))
+    model.add(tf.keras.layers.BatchNormalization())
+    #model.add(tf.keras.layers.Dropout(0.1))
+
+    model.add(tf.keras.layers.Conv2D(256, 1, activation='relu', padding='same'))
+    model.add(tf.keras.layers.Conv2D(256, 1, activation='relu', padding='same'))
+    #model.add(tf.keras.layers.MaxPooling2D(pool_size=(2,2)))
+    #model.add(tf.keras.layers.BatchNormalization())
+    #model.add(tf.keras.layers.Dropout(0.1))
+
+    #model.add(tf.keras.layers.Conv2D(256, 2, activation='relu', padding='same'))
+    #model.add(tf.keras.layers.Conv2D(256, 2, activation='relu', padding='same'))
+
+    model.add(tf.keras.layers.GlobalAveragePooling2D())
+    model.add(tf.keras.layers.Dense(256, activation='relu'))
+    model.add(tf.keras.layers.Dropout(0.3))
+    model.add(tf.keras.layers.Dense(256, activation='relu'))
+    model.add(tf.keras.layers.Dropout(0.3))
+    model.add(tf.keras.layers.Dense(num_classes, activation='softmax'))
+    model.summary()
+
+    model.compile(optimizer='adam', loss=tf.keras.losses.SparseCategoricalCrossentropy(), metrics=['accuracy'])
+    
+    return(model)
 
 
 def load_model(config):
-    if int(config['start']) > 0:
-        return(tf.keras.models.load_model(config['training_dir'], config))
+    #if int(config['training']['start']) > 0:
+    #    return(tf.keras.models.load_model(config['training']['training_dir'], config))
     
-    init_model(config)
+    return(init_model(109, int(config['training']['image_size']), int(config['training']['image_size'])))
     
 
-def train_model(model, config):
+def train_model(model, config, train_ds, val_ds):
     history = model.fit(train_ds,
                         validation_data=val_ds,
-                        epochs=int(config['start']),
-                        initial_epoch=config['stop'],
-                        batch_size = config['batchsize'])
+                        epochs=int(config['training']['stop'])-int(config['training']['start']),
+                        initial_epoch=int(config['training']['start']),
+                        batch_size = int(config['training']['batchsize']))
     
-    logger.info(print(history))
-    model
+    
+    return(model)
+
+
+def init_ts(config):
+    train_ds, val_ds = tf.keras.utils.image_dataset_from_directory(
+        config['training']['scnn_dir'] + '/data',
+        interpolation='area',
+        validation_split = 0.2,
+        subset = "both",
+        seed = 123,
+        image_size = (int(config['training']['image_size']), int(config['training']['image_size'])),
+        batch_size = int(config['training']['batchsize']),
+        color_mode = 'grayscale')
+    return(train_ds, val_ds)
 
 if __name__ == "__main__":
 
@@ -163,31 +218,8 @@ if __name__ == "__main__":
 
     config = configparser.ConfigParser()
     config.read(args.config)
-
-    if config.has_option('logging', 'config') == False:
-        print(f"No logging:config specified in {args.config}. Aborting!")
-        exit()
-
-    permis = int(config['general']['dir_permissions'])
-    logging.config.fileConfig(config['logging']['config'], defaults={'date':datetime.datetime.now().strftime("%Y%m%d-%H%M%S"),'path':model_dir,'name':'train'})
-    logger = logging.getLogger('sLogger')
-
-    print_config(config)
-
-    # Save INI file
-    cp_file = model_dir + '/' + str(datetime.datetime.now().strftime("%Y%m%d-%H%M%S")) + ' ' + args.config
-    logger.debug(f"Copying ini file to training directory {model_dir}")
-    logger.info(f"Copy config to {cp_file}")
-    shutil.copy2(args.config, cp_file)
     
-    timer_train = time()
-    model = load_model(config['training'])
-    model = train_model(model, config['training'])
-    model.save() ## TODO: Name??
-    timer_train = time() - timer_train
-
-    logger.debug(f"Training finished in {timer_train:.3f} s.")
-    print(f"Finished training in {timer_train:.1f} seconds.")
-
-    logger.debug("Done.")
-    
+    train_ds, val_ds = init_ts(config)
+    model = load_model(config)
+    model = train_model(model, config, train_ds, val_ds)
+    model.save(config['training']['scnn_dir'] + '/' + config['training']['model_name'])

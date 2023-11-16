@@ -212,6 +212,4 @@ if __name__ == "__main__":
         process_avi(av, segmentation_dir, config, q)
 
     print('Joining')
-    # q.join()
-    # print('q Done.')
     worker.join(timeout=10)

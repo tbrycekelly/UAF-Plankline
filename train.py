@@ -119,57 +119,89 @@ def classify(model_file, input_dir):
 def init_model(num_classes, img_height, img_width):
 
     #### # Plankline-ish
-    model = tf.keras.models.Sequential(name=config['training']['model_name']) # Sequential alphabetic names in Alaska
-    model.add(tf.keras.layers.InputLayer(input_shape=(img_height,img_width,1)))
-    model.add(tf.keras.layers.Rescaling(-1./255, 1))
-    model.add(tf.keras.layers.RandomRotation(1))
-    model.add(tf.keras.layers.RandomFlip("horizontal"))
-
-    model.add(tf.keras.layers.Conv2D(96, 11, activation='relu'))
-    model.add(tf.keras.layers.Conv2D(96, 3, activation='relu'))
-    model.add(tf.keras.layers.MaxPooling2D(pool_size=(2,2)))
-    model.add(tf.keras.layers.BatchNormalization())
-
-    model.add(tf.keras.layers.Conv2D(96, 3, activation='relu', padding='same'))
-    model.add(tf.keras.layers.Conv2D(96, 3, activation='relu', padding='same'))
-    model.add(tf.keras.layers.MaxPooling2D(pool_size=(2,2)))
-
-    model.add(tf.keras.layers.Conv2D(128, 3, activation='relu', padding='same'))
-    model.add(tf.keras.layers.Conv2D(128, 3, activation='relu', padding='same'))
-    model.add(tf.keras.layers.MaxPooling2D(pool_size=(2,2)))
-    model.add(tf.keras.layers.BatchNormalization())
-
-    model.add(tf.keras.layers.Conv2D(256, 3, activation='relu', padding='same'))
-    model.add(tf.keras.layers.Conv2D(256, 3, activation='relu', padding='same'))
-    model.add(tf.keras.layers.MaxPooling2D(pool_size=(2,2)))
-    model.add(tf.keras.layers.BatchNormalization())
-
-    model.add(tf.keras.layers.Conv2D(192, 3, activation='relu', padding='same'))
-    model.add(tf.keras.layers.Conv2D(192, 1, activation='relu', padding='same'))
-    model.add(tf.keras.layers.MaxPooling2D(pool_size=(2,2)))
-    model.add(tf.keras.layers.BatchNormalization())
-    #model.add(tf.keras.layers.Dropout(0.1))
-
-    model.add(tf.keras.layers.Conv2D(256, 1, activation='relu', padding='same'))
-    model.add(tf.keras.layers.Conv2D(256, 1, activation='relu', padding='same'))
-    #model.add(tf.keras.layers.MaxPooling2D(pool_size=(2,2)))
-    #model.add(tf.keras.layers.BatchNormalization())
-    #model.add(tf.keras.layers.Dropout(0.1))
-
-    #model.add(tf.keras.layers.Conv2D(256, 2, activation='relu', padding='same'))
-    #model.add(tf.keras.layers.Conv2D(256, 2, activation='relu', padding='same'))
-
-    model.add(tf.keras.layers.GlobalAveragePooling2D())
-    model.add(tf.keras.layers.Dense(256, activation='relu'))
-    model.add(tf.keras.layers.Dropout(0.3))
-    model.add(tf.keras.layers.Dense(256, activation='relu'))
-    model.add(tf.keras.layers.Dropout(0.3))
-    model.add(tf.keras.layers.Dense(num_classes, activation='softmax'))
+    model = ResNet18([img_height, img_width, 1], config['training']['model_name'], num_classes)
     model.summary()
 
-    model.compile(optimizer='adam', loss=tf.keras.losses.SparseCategoricalCrossentropy(), metrics=['accuracy'])
+    model.compile(optimizer='adam', loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False), metrics=['accuracy'])
     
     return(model)
+
+
+
+
+def ResNet18(input_shape, name, num_classes):
+    BN_AXIS = 3
+
+    img_input = tf.keras.layers.Input(shape=input_shape)
+    x = tf.keras.layers.Rescaling(-1. / 255, 1)(img_input)
+    x = tf.keras.layers.RandomRotation(2)(x)
+    x = tf.keras.layers.RandomFlip("horizontal_and_vertical")(x)
+
+    x = tf.keras.layers.ZeroPadding2D(padding=(3, 3), name='conv1_pad')(x)
+    x = tf.keras.layers.Conv2D(64, (7, 7),
+                      strides=(2, 2),
+                      padding='valid',
+                      kernel_initializer='he_normal',
+                      name='conv1')(x)
+    x = tf.keras.layers.BatchNormalization(axis=BN_AXIS, name='bn_conv1')(x)
+    x = tf.keras.layers.Activation('relu')(x)
+    x = tf.keras.layers.ZeroPadding2D(padding=(1, 1), name='pool1_pad')(x)
+    x = tf.keras.layers.MaxPooling2D((3, 3), strides=(2, 2))(x)
+
+    x = make_basic_block_layer(x, filter_num=64, blocks=2)
+    x = make_basic_block_layer(x, filter_num=128, blocks=2, stride=2)
+    x = make_basic_block_layer(x, filter_num=256, blocks=2, stride=2)
+    x = make_basic_block_layer(x, filter_num=512, blocks=2, stride=2)
+
+    x = tf.keras.layers.GlobalAveragePooling2D()(x)
+    x = tf.keras.layers.Flatten()(x)
+    x = tf.keras.layers.Dropout(0.1)(x)
+    x = tf.keras.layers.Dense(512, activation='relu')(x)
+    x = tf.keras.layers.Dense(num_classes, activation='softmax')(x)
+
+    model = tf.keras.Model(img_input, x, name=name)
+    return model
+
+
+def make_basic_block_base(inputs, filter_num, stride=1):
+    BN_AXIS = 3
+    x = tf.keras.layers.Conv2D(filters=filter_num,
+                                        kernel_size=(3, 3),
+                                        strides=stride,
+                                        kernel_initializer='he_normal',
+                                        padding="same")(inputs)
+    x = tf.keras.layers.BatchNormalization(axis=BN_AXIS)(x)
+    x = tf.keras.layers.Conv2D(filters=filter_num,
+                                        kernel_size=(3, 3),
+                                        strides=1,
+                                        kernel_initializer='he_normal',
+                                        padding="same")(x)
+    x = tf.keras.layers.BatchNormalization(axis=BN_AXIS)(x)
+    x = tf.keras.layers.Dropout(0.2)(x)
+
+    shortcut = inputs
+    if stride != 1:
+        shortcut = tf.keras.layers.Conv2D(filters=filter_num,
+                                            kernel_size=(1, 1),
+                                            strides=stride,
+                                            kernel_initializer='he_normal')(inputs)
+        shortcut = tf.keras.layers.BatchNormalization(axis=BN_AXIS)(shortcut)
+        shortcut = tf.keras.layers.Dropout(0.1)(shortcut)
+
+    x = tf.keras.layers.add([x, shortcut])
+    x = tf.keras.layers.Activation('relu')(x)
+    #x = tf.keras.layers.Dropout(0.7)(x)
+
+    return x
+
+def make_basic_block_layer(inputs, filter_num, blocks, stride=1):
+    x = make_basic_block_base(inputs, filter_num, stride=stride)
+
+    for _ in range(1, blocks):
+        x = make_basic_block_base(x, filter_num, stride=1)
+
+    return x
+
 
 
 def load_model(config):
@@ -222,4 +254,4 @@ if __name__ == "__main__":
     train_ds, val_ds = init_ts(config)
     model = load_model(config)
     model = train_model(model, config, train_ds, val_ds)
-    model.save(config['training']['scnn_dir'] + '/' + config['training']['model_name'])
+    model.save(config['training']['model_path'] + '/' + config['training']['model_name'])

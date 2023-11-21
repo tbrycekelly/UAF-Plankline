@@ -40,6 +40,7 @@ import csv
 #from threading import Thread
 from multiprocessing import Process, Queue
 import tqdm
+import sqlite3
 
 
 class Frame:
@@ -93,6 +94,9 @@ def process_frame(q, config): ## TODO: write metadata file
         if config['general']['dry_run'] == 'True':
             print('.')
             return
+        
+        #con = sqlite3.connect(frame.get_name() + '/' + 'images.db')
+        
         ## Read img and flatfield
         gray = cv2.cvtColor(frame.read(), cv2.COLOR_BGR2GRAY)
         gray = np.array(gray)
@@ -125,10 +129,15 @@ def process_frame(q, config): ## TODO: write metadata file
             outwritter = csv.writer(outcsv, delimiter=',', quotechar='|')
             for i in range(len(bboxes)):
                 if area[i] > 0:
+                    #im = sqlite3.Binary(gray[bboxes[i][1]:(bboxes[i][1] + bboxes[i][3]), bboxes[i][0]:(bboxes[i][0] + bboxes[i][2])])
                     im = Image.fromarray(gray[bboxes[i][1]:(bboxes[i][1] + bboxes[i][3]), bboxes[i][0]:(bboxes[i][0] + bboxes[i][2])])
                     im.save(f"{name}{n:05}-{i:05}.png")
                     stats = [name, n, i, bboxes[i][0] + bboxes[i][2]/2, bboxes[i][1] + bboxes[i][3]/2, bboxes[i][2], bboxes[i][3], area[i]]
                     outwritter.writerow(stats)
+                    #con.execute(f'INSERT INTO frame(frame,crop,image) VALUES ({n}, {i}, ?) [{im}]')
+    
+        con.commit()
+        con.close()
 
 
 def process_avi(avi_path, segmentation_dir, config, q):
@@ -142,6 +151,11 @@ def process_avi(avi_path, segmentation_dir, config, q):
     _, filename = os.path.split(avi_path)
     output_path = segmentation_dir + os.path.sep + filename + os.path.sep
     os.makedirs(output_path, exist_ok=True)
+    
+    #con = sqlite3.connect(output_path + '/' + 'images.db')
+    #con.execute("CREATE TABLE frame(ID INT PRIMARY KEY NOT NULL,frame INT, crop INT, image BLOB)")
+    #con.commit()
+    #con.close()
 
     video = cv2.VideoCapture(avi_path)
     #length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -199,8 +213,8 @@ if __name__ == "__main__":
         sys.exit(f"No avi files found in machine_scratch/raw make sure avi files are in {raw_dir}.")
 
     ## Prepare workers for receiving frames
-    #num_threads = os.cpu_count() // 2
-    num_threads = 2
+    num_threads = os.cpu_count() - 1
+    #num_threads = 2
     max_queue = num_threads * 4
     q = Queue(maxsize=int(max_queue))
 

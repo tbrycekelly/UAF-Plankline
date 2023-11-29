@@ -54,6 +54,7 @@ import numpy as np
 import pathlib
 import os
 from PIL import Image
+import pandas as pd
 
 
 def pad(path, ratio=0.2):
@@ -118,14 +119,12 @@ def classify(model_file, input_dir):
 
 def init_model(num_classes, img_height, img_width):
 
-    #### # Plankline-ish
+    #strategy = tf.distribute.MirroredStrategy()
+    #with strategy.scope():
     model = ResNet18([img_height, img_width, 1], config['training']['model_name'], num_classes)
-    model.summary()
-
     model.compile(optimizer='adam', loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False), metrics=['accuracy'])
-    
+    model.summary()
     return(model)
-
 
 
 
@@ -153,9 +152,10 @@ def ResNet18(input_shape, name, num_classes):
     x = make_basic_block_layer(x, filter_num=256, blocks=2, stride=2)
     x = make_basic_block_layer(x, filter_num=512, blocks=2, stride=2)
 
+
+    x = tf.keras.layers.Dropout(0.1)(x)
     x = tf.keras.layers.GlobalAveragePooling2D()(x)
     x = tf.keras.layers.Flatten()(x)
-    x = tf.keras.layers.Dropout(0.1)(x)
     x = tf.keras.layers.Dense(512, activation='relu')(x)
     x = tf.keras.layers.Dense(num_classes, activation='softmax')(x)
 
@@ -177,7 +177,7 @@ def make_basic_block_base(inputs, filter_num, stride=1):
                                         kernel_initializer='he_normal',
                                         padding="same")(x)
     x = tf.keras.layers.BatchNormalization(axis=BN_AXIS)(x)
-    x = tf.keras.layers.Dropout(0.2)(x)
+    x = tf.keras.layers.Dropout(0.25)(x)
 
     shortcut = inputs
     if stride != 1:
@@ -186,11 +186,9 @@ def make_basic_block_base(inputs, filter_num, stride=1):
                                             strides=stride,
                                             kernel_initializer='he_normal')(inputs)
         shortcut = tf.keras.layers.BatchNormalization(axis=BN_AXIS)(shortcut)
-        shortcut = tf.keras.layers.Dropout(0.1)(shortcut)
 
     x = tf.keras.layers.add([x, shortcut])
     x = tf.keras.layers.Activation('relu')(x)
-    #x = tf.keras.layers.Dropout(0.7)(x)
 
     return x
 
@@ -255,3 +253,21 @@ if __name__ == "__main__":
     model = load_model(config)
     model = train_model(model, config, train_ds, val_ds)
     model.save(config['training']['model_path'] + '/' + config['training']['model_name'])
+    
+    predictions = model.predict(val_ds)
+    predictions = np.argmax(predictions, axis = -1)
+    y = np.concatenate([y for x, y in val_ds], axis=0)
+
+    confusion_matrix = tf.math.confusion_matrix(y, predictions)
+    confusion_matrix = pd.DataFrame(confusion_matrix, index = train_ds.class_names, columns = train_ds.class_names)
+    confusion_matrix.to_csv(config['training']['model_path'] + '/' + config['training']['model_name'] + ' confusion.csv')
+    
+    summary = {
+        "file": val_ds.file_paths,
+        "label": val_ds.class_names,
+        "prediction": pd.Series(predictions),
+    }
+    
+    summary = pd.DataFrame(summary)
+    summary.to_csv(config['training']['model_path'] + '/' + config['training']['model_name'] + ' summary.csv')
+

@@ -135,9 +135,6 @@ def process_frame(q, config): ## TODO: write metadata file
                     stats = [name, n, i, bboxes[i][0] + bboxes[i][2]/2, bboxes[i][1] + bboxes[i][3]/2, bboxes[i][2], bboxes[i][3], area[i]]
                     outwritter.writerow(stats)
                     #con.execute(f'INSERT INTO frame(frame,crop,image) VALUES ({n}, {i}, ?) [{im}]')
-    
-        con.commit()
-        con.close()
 
 
 def process_avi(avi_path, segmentation_dir, config, q):

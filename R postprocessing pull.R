@@ -1,6 +1,6 @@
 library(data.table)
 
-class.dir = '/data/new/analysis/camera1/classification/GAK_202207-REG-Alpha/'
+class.dir = '/data/new/analysis/camera1/classification/GAK_202207-REG-Gamma/'
 segment.dir = '/data/new/analysis/camera1/segmentation/GAK_202207-REG/'
 model.dir = '/data/new/training/training_set_20231002/data'
 
@@ -58,3 +58,16 @@ for (i in 1:length(class.files)) {
   }
   message('Completed ', i, ' of ', length(class.files))
 }
+
+
+## Look up classification for a particular ROI:
+roi.name = 'Camera1_VIPF-39-2022-07-21-23-59-18.521.avi_00408-00028.png'
+
+tmp = strsplit(roi.name, split = '.avi_')[[1]]
+k = grep(tmp[1], class.files)
+classification = fread(paste0(class.dir, '/', class.files[k]))
+colnames(classification) = c('roi', model.names)
+l = which(classification$roi == tmp[2])
+tmp = classification[l,-1]
+
+t(round(tmp*100, 1))[tmp[1,] > 0.001,]
